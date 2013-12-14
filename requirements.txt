@@ -6,10 +6,9 @@ gitdb==0.5.4
 smmap==0.8.1
 wsgiref==0.1.2
 Whoosh==2.5.5
-django-haystack==1.2.6
+django-haystack==2.1.0
 repoze.timeago==0.5
 Markdown==2.3.1
 pytz==2011n
 beautifulsoup==3.2.1
-
-docutils=0.11
+docutils==0.11
