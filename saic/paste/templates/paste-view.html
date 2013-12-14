@@ -12,13 +12,13 @@ gitpaste.com - anonymous paste
 {% endblock %}
 
 {% block jsheader %}
-<script src='{{ STATIC_URL }}/js/jquery.formset.min.js'></script>
-<script src='{{ STATIC_URL }}/js/ba-linkify.min.js'></script>
-<link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}/css/pygments/tango.css'>
-<link rel='stylesheet' media='screen' type='text/css' href='{{ STATIC_URL }}/css/view.css'>
-<link rel='stylesheet' media='screen' type='text/css' href='{{ STATIC_URL }}/css/markdown.css'>
+<script src='{{ STATIC_URL }}js/jquery.formset.min.js'></script>
+<script src='{{ STATIC_URL }}js/ba-linkify.min.js'></script>
+<link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}css/pygments/tango.css'>
+<link rel='stylesheet' media='screen' type='text/css' href='{{ STATIC_URL }}css/view.css'>
+<link rel='stylesheet' media='screen' type='text/css' href='{{ STATIC_URL }}css/markdown.css'>
 {% if use_icons %}
-<link rel='stylesheet' media='screen' type='text/css' href='{{ STATIC_URL }}/css/view-icons.css'>
+<link rel='stylesheet' media='screen' type='text/css' href='{{ STATIC_URL }}css/view-icons.css'>
 {% endif %}
 {% endblock %}
 
@@ -80,9 +80,9 @@ gitpaste.com - anonymous paste
       {% if user.is_authenticated %}
       <span favorite={{ favorited }} id='favorite-toggle'>
         {% if favorited %}
-          <img title='Click to remove this post from your favorites' align='left' alt='favorite' height='32px' src='{{ STATIC_URL }}/img/favorite.png'>
+          <img title='Click to remove this post from your favorites' align='left' alt='favorite' height='32px' src='{{ STATIC_URL }}img/favorite.png'>
         {% else %}
-          <img title='Click to favorite this post' align='left' alt='not-favorite' height='32px' src='{{ STATIC_URL }}/img/not-favorite.png'>
+          <img title='Click to favorite this post' align='left' alt='not-favorite' height='32px' src='{{ STATIC_URL }}img/not-favorite.png'>
         {% endif %}
         </span>
       {% endif %}
@@ -92,7 +92,7 @@ gitpaste.com - anonymous paste
         <a href='{% url user_pastes owner=commit_current.owner.pk %}'>
           <img title='User pastes' class='gravatar-community' alt='User' src='{{ commit_current.owner.preference.gravatar }}'></a>
         {% else %}
-          <a href='{% url anon_pastes %}'><img class='gravatar-community' alt='Anonymous' src='{{ STATIC_URL }}/img/default-icon.png'></a>
+          <a href='{% url anon_pastes %}'><img class='gravatar-community' alt='Anonymous' src='{{ STATIC_URL }}img/default-icon.png'></a>
         {% endif %}
       {% endif %}
       paste: {{ paste_set.pk }} / commit: {{ commit_current.commit|slice:":8" }}
@@ -216,5 +216,5 @@ gitpaste.com - anonymous paste
   {% endif %}
 </div>
 <script>var set = "{{ commit_current.parent_set.pk }}";</script>
-<script src='{{ STATIC_URL }}/js/view.js'></script>
+<script src='{{ STATIC_URL }}js/view.js'></script>
 {% endblock %}

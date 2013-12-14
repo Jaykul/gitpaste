@@ -25,5 +25,6 @@ urlpatterns = patterns('saic.paste.views',
     url(r'^accounts/register/$', 'register', name='register'),
     url(r'^accounts/preference/$', 'preference', name='preference'),
     url(r'^accounts/timezone/$', 'set_timezone', name='set_timezone'),
+    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^$', 'paste', name='paste'),
 )

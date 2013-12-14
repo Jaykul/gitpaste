@@ -6,12 +6,12 @@
 {% block title %}gitpaste.com - open source git-backed pasting{% endblock %}
 
 {% block jsheader %}
-<script src='{{ STATIC_URL }}/js/jquery.formset.min.js'></script>
-<script src='{{ STATIC_URL }}/js/jquery.textarea.js'></script>
-<script src='{{ STATIC_URL }}/js/jquery-ui-1.8.16.custom.min.js'></script>
-<script src='{{ STATIC_URL }}/js/chosen.jquery.js'></script>
-<link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}/css/paste.css'>
-<link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}/css/chosen.css'>
+<script src='{{ STATIC_URL }}js/jquery.formset.min.js'></script>
+<script src='{{ STATIC_URL }}js/jquery.textarea.js'></script>
+<script src='{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js'></script>
+<script src='{{ STATIC_URL }}js/chosen.jquery.js'></script>
+<link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}css/paste.css'>
+<link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}css/chosen.css'>
 {% endblock %}
 
 {% block content %}
@@ -43,7 +43,7 @@
             <div>
                 {{ set.commit_set.all.count }} commit{{ set.commit_set.all.count|pluralize }}
                 {% with set.commit_set.latest as latest %}
-                <time datetime='{{ latest.created|timetag }}' title='{{ latest.created|localtime }}'> {{ latest.created|elapsed }} by 
+                <time datetime='{{ latest.created }}' title='{{ latest.created|localtime }}'> {{ latest.created|elapsed }} by 
                     {% if latest.owner == user %}
                     you.
                     {% else %}
@@ -157,5 +157,5 @@
     {{ forms.management_form }}
     </form>
 </div>
-<script src='{{ STATIC_URL }}/js/paste.js'></script>
+<script src='{{ STATIC_URL }}js/paste.js'></script>
 {% endblock %}

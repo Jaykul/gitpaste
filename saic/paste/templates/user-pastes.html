@@ -6,9 +6,9 @@
 {% block title %} Login {% endblock %}
 
 {% block jsheader %}
-<link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}/css/favorites.css'>
+<link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}css/favorites.css'>
 {% if USE_ICONS %}
-<link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}/css/favorites-icons.css'>
+<link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}css/favorites-icons.css'>
 {% endif %}
 {% endblock %}
 
@@ -17,7 +17,7 @@
   <h1>
     {% if USE_ICONS %}
         {% if not owner %}
-          <a href='{% url anon_pastes %}'><img class='gravatar-community' alt='Anonymous' src='{{ STATIC_URL }}/img/default-icon.png'></a>
+          <a href='{% url anon_pastes %}'><img class='gravatar-community' alt='Anonymous' src='{{ STATIC_URL }}img/default-icon.png'></a>
         {% else %}
           <img id='profile-img' alt='Profile' src='{{ owner.preference.gravatar }}'>
         {% endif %}
@@ -56,7 +56,7 @@
       {% for set in sets.object_list %}
         <div>
             {% if set.private %}
-            <img src='{{ STATIC_URL }}/img/icons/key.png' alt='private' title='This paste is private' style='vertical-align: middle'>
+            <img src='{{ STATIC_URL }}img/icons/key.png' alt='private' title='This paste is private' style='vertical-align: middle'>
             {% endif %}
             <a href='{% url paste_view pk=set.pk %}'>Paste {{ set.pk }}{% if set.description %}: {{ set.description }}{% endif %}</a>
             {% if set.private %}
