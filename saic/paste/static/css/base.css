@@ -20,7 +20,7 @@ nav.top-bar {
 nav.top-bar img {
     float: left;
     width: 180px; /* height 25px */
-    padding: 5px 0 5px;
+    padding: 0 5px 5px;
     left: 15px;
 }
 
