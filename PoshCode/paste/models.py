@@ -8,7 +8,7 @@ import timezone
 
 from datetime import datetime
 
-from saic.settings import generate_icon
+from PoshCode.settings import generate_icon
 
 timezones = [(tz, tz) for tz in pytz.common_timezones]
 

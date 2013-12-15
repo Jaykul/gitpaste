@@ -1,9 +1,8 @@
 {% extends "base.html" %}
-{% load elapsed %}
+{% load humanize %}
 {% load tz %}
 
-
-{% block title %}gitpaste.com - open source git-backed pasting{% endblock %}
+{% block title %}PoshCode.org - open source git-backed code sharing{% endblock %}
 
 {% block jsheader %}
 <script src='{{ STATIC_URL }}js/jquery.formset.min.js'></script>
@@ -19,19 +18,18 @@
 {% if not user.parent_set_set.all.count %}
     <section class='yellow-box'>
         <p>
-        <strong>Paste</strong> is a simple way to <strong>share snippets and pastes</strong> with others. It is an <strong>open-source</strong> <a href='http://gist.github.com'>github:gist</a> clone.
-            All pastes are git repositories, so they are automatically <strong>versioned</strong> and
-            <strong>forkable</strong>.
+        <strong>PoshCode</strong> is a simple way to <strong>share PowerShell scripts and modules</strong> with others. It is an <strong>open-source</strong> <a href='http://gist.github.com'>github:gist</a> clone based on gitpaste.
+            All pastes are git repositories, so they are automatically <strong>versioned</strong> and <strong>forkable</strong>.
         </p>
         <p>
-            <a href='https://github.com/justinvh/gitpaste'>Fork GitPaste on GitHub and improve it.</a>
+            <a href='https://github.com/jaykul/gitpaste'>Fork GitPaste on GitHub and improve it.</a>
         </p>
     </section>
 {% endif %}
     <section class='paste-list'>
     {% if user.is_authenticated %}
         {% if not user.set_set.all.count %}
-            <h1>Hey!</h1>
+            <h1>Hello!</h1>
             <p>You have not created any pastes, but you will eventually.</p>
         {% else %}
             <h1>Your Most Recent Contributions</h1>
@@ -43,7 +41,7 @@
             <div>
                 {{ set.commit_set.all.count }} commit{{ set.commit_set.all.count|pluralize }}
                 {% with set.commit_set.latest as latest %}
-                <time datetime='{{ latest.created }}' title='{{ latest.created|localtime }}'> {{ latest.created|elapsed }} by 
+                <time datetime='{{ latest.created }}' title='{{ latest.created|localtime }}'> {{ latest.created|naturaltime }} by 
                     {% if latest.owner == user %}
                     you.
                     {% else %}

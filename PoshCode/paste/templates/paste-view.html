@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% load elapsed %}
 {% load markup %}
+{% load humanize %}
 {% load tz %}
 
 {% block title %}
 {% if paste_set.description %}
-gitpaste.com - "{{ paste_set.description }}"
+PoshCode.org - "{{ paste_set.description }}"
 {% else %}
-gitpaste.com - anonymous paste
+PoshCode.org - anonymous paste
 {% endif %}
 {% endblock %}
 
@@ -44,7 +44,7 @@ gitpaste.com - anonymous paste
         {% endif %}
       </span> 
       <span class='date' title="{{ commit.created|localtime }}">
-        {{ commit.created|elapsed }}.    </span> </li>
+        {{ commit.created|naturaltime }}.    </span> </li>
     {% endfor %}
   </ul>
   {% if user.is_authenticated %}
@@ -122,7 +122,7 @@ gitpaste.com - anonymous paste
       {% if paste_set.description %}"{{ paste_set.description }}"{% endif %}
       {% if commit_current.owner %} by <strong><a href='{% url user_pastes owner=commit_current.owner.pk %}'>{{ commit_current.email }}</a></strong> {% endif %}
       <span class='date' title="{{ commit_current.created|localtime }}">
-        {{ commit_current.created|elapsed }}
+        {{ commit_current.created|naturaltime }}
         with {{ commit_current.views }} 
         view{{ commit_current.views|pluralize }}.
       </span>

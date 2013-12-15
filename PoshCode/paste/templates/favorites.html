@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load elapsed %}
+{% load humanize %}
 {% load tz %}
 
 {% block title %} Login {% endblock %}
@@ -27,7 +27,7 @@
             {{ set.commit_set.all.count }} commit{{ set.commit_set.all.count|pluralize }}
             {% with set.commit_set.latest as latest %}
               <span class='date' title='{{ latest.created|localtime }}'>
-                {{ latest.created|elapsed }} by 
+                {{ latest.created|naturaltime }} by 
                 {% if latest.owner %}you{% else %}{{ latest.email }}{% endif %}.
               </span>
             {% endwith %}

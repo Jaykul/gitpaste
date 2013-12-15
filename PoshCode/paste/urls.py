@@ -1,7 +1,10 @@
 from django.conf.urls.defaults import patterns, include, url
 from django.views.generic.simple import redirect_to
 
-urlpatterns = patterns('saic.paste.views',
+from django.contrib import admin
+admin.autodiscover()
+
+urlpatterns = patterns('PoshCode.paste.views',
     url(r'^live/$', 'live_paste', name='live_paste'),
     url(r'^(?P<pk>\d+)/$', redirect_to, {'url': '/paste/%(pk)s/'}),
     url(r'^(?P<pk>\d+)/(?P<private_key>[a-zA-Z0-9]+)?/?$', redirect_to, {'url': '/paste/%(pk)s/%(private_key)s/'}),
@@ -26,5 +29,6 @@ urlpatterns = patterns('saic.paste.views',
     url(r'^accounts/preference/$', 'preference', name='preference'),
     url(r'^accounts/timezone/$', 'set_timezone', name='set_timezone'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^admin/', include(admin.site.urls)),    
     url(r'^$', 'paste', name='paste'),
 )

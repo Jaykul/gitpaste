@@ -15,5 +15,5 @@ urlpatterns = patterns('',
         'django.contrib.auth.views.password_reset_confirm'),
     (r'^reset/done/$', 'django.contrib.auth.views.password_reset_complete'),
     (r'^search/', include('haystack.urls')),
-    url(r'^', include('saic.paste.urls')),
+    url(r'^', include('PoshCode.paste.urls')),
 )

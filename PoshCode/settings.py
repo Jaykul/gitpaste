@@ -1,5 +1,7 @@
 import os
 
+DEBUG = True
+
 ALLOW_ANONYMOUS_POSTS = True
 ALLOW_ANONYMOUS_ACCESS = True
 
@@ -20,7 +22,7 @@ def generate_icon(email):
     import hashlib
     import urllib
     size = 40
-    default = 'http://gitpaste.com/static/img/default-icon.png'
+    default = '/static/img/default-icon.png'
     gravatar = "http://www.gravatar.com/avatar/%s?%s" % (
             hashlib.md5(email.lower()).hexdigest(),
             urllib.urlencode({'d':default, 's':str(size)}))
@@ -85,9 +87,10 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.sep.join([os.path.dirname(__file__), 'static'])
+STATIC_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static')
 
 # URL prefix for static files.
+# Make sure to use a trailing slash.
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
@@ -101,6 +104,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    "D:/home/site/wwwroot/PoshCode/paste/static",
 )
 
 # List of finder classes that know how to find static files in
@@ -127,14 +131,14 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'saic.paste.middleware.TimezoneMiddleware',
+    'PoshCode.paste.middleware.TimezoneMiddleware',
 )
 
-ROOT_URLCONF = 'saic.urls'
+ROOT_URLCONF = 'PoshCode.urls'
 ROOTDIR = os.path.abspath(os.path.dirname(__file__)) 
 
 TEMPLATE_DIRS = (
-        os.sep.join([ROOTDIR, 'templates']),
+    os.sep.join([ROOTDIR, 'templates']),
 )
 
 INSTALLED_APPS = (
@@ -146,7 +150,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.markup',
-    'saic.paste',
+    'PoshCode.paste',
     'django.contrib.admin',
     'django.contrib.admindocs',
     'haystack',
@@ -176,14 +180,14 @@ LOGGING = {
 }
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-        'django.contrib.auth.context_processors.auth',
-        'django.contrib.auth.context_processors.auth',
-        'django.core.context_processors.debug',
-        'django.core.context_processors.i18n',
-        'django.core.context_processors.media',
-        'django.core.context_processors.static',
-        'django.contrib.messages.context_processors.messages',
-        'saic.context_processors.use_tz',
-        'saic.context_processors.use_icon',
-        'saic.context_processors.site',
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.contrib.messages.context_processors.messages',
+    'PoshCode.context_processors.use_tz',
+    'PoshCode.context_processors.use_icon',
+    'PoshCode.context_processors.site',
 )

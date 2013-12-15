@@ -1,4 +1,4 @@
-from saic.paste.util import has_access_to_paste
+from PoshCode.paste.util import has_access_to_paste
 from models import Set, Paste, Commit
 from django.shortcuts import get_object_or_404, redirect
 

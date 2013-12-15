@@ -1,5 +1,4 @@
 import datetime
-import repoze.timeago
 import pytz
 
 from django import template

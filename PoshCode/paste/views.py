@@ -1,5 +1,5 @@
 import os
-from saic import settings
+from PoshCode import settings
 import string
 import random
 import pytz
