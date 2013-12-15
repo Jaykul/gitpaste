@@ -1,5 +1,5 @@
 import os
-import settings
+from saic import settings
 import string
 import random
 import pytz
