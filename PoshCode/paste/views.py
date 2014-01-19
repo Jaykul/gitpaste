@@ -17,7 +17,7 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import *
 
-import git
+from dulwich.repo import Repo
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
@@ -95,6 +95,13 @@ def get_owner(request, commit_data, user):
     else:
         return None
 
+def get_commiter(owner):
+   gitName = "Anonymous"
+   if owner:
+       gitName = owner.get_full_name() or owner.get_username()
+       gitName = ("{} <{}>".format(gitName, owner.email) if owner.email else gitName)
+   return gitName
+
 def paste(request):
     commit_kwargs = {}
     user = request.user
@@ -145,7 +152,7 @@ def paste(request):
     if os.path.isdir(repo_dir):
         repo_dir = get_first_nonexistent_filename(repo_dir + '-%d')
 
-    os.mkdir(repo_dir)
+    git_repo = Repo.init(repo_dir, mkdir=True)
 
     # Calculate expiration time of set if necessary
     exp_option = set_meta_form.cleaned_data.get('expires')
@@ -172,12 +179,6 @@ def paste(request):
             expires=exp_time,
     )
 
-    # Yes, this is horrible. I know. But there is a bug with Python Git.
-    # See: https://github.com/gitpython-developers/GitPython/issues/39
-    os.environ['USER'] = "Anonymous"
-    if owner:
-        os.environ['USER'] = owner.username
-
     # Initialize a commit, git repository, and pull the current index.
     commit = Commit.objects.create(
             views=0,
@@ -186,23 +187,19 @@ def paste(request):
             owner=owner
     )
 
-    git_repo = git.Repo.init(repo_dir)
-    index = git_repo.index
 
     # We enumerate over the forms so we can have a way to reference
     # the line numbers in a unique way relevant to the pastes.
     priority_filename = os.sep.join([repo_dir, 'priority.txt'])
     with codecs.open(priority_filename, 'w', "utf-8-sig") as priority_file:
         for form_index, form in enumerate(paste_forms):
-            priority_file.write('%s: %s\n' % process_pasted_file(form_index,
-                                                                 form,
-                                                                 repo_dir,
-                                                                 index, commit))
+            priority_file.write('%s: %s\n' % process_pasted_file(form_index, form, repo_dir, git_repo, commit))
 
-    index.add([priority_filename])
+    git_repo.stage([priority_filename])
 
     # Create the commit from the index
-    new_commit = index.commit('Initial paste.')
+    # TODO: Support comments on all the commits
+    new_commit = git_repo.do_commit('Initial paste.', committer=get_commiter(owner))
     commit.commit = new_commit
     commit.save()
 
@@ -269,7 +266,7 @@ def paste_view(request, pk, paste_set, private_key=None):
         'comment_form': comment_form,
     }, RequestContext(request))
 
-def process_pasted_file(form_index, form, repo_dir, index, commit, edit=False):
+def process_pasted_file(form_index, form, repo_dir, repo, commit, edit=False):
     data = form.cleaned_data
     filename = data['filename']
     language_lex, language = data['language'].split(';')
@@ -318,7 +315,7 @@ def process_pasted_file(form_index, form, repo_dir, index, commit, edit=False):
     )
 
     # Add the file to the index and create the paste
-    index.add([filename_absolute])
+    repo.stage([filename_absolute])
     p = Paste.objects.create(
             filename=filename,
             absolute_path=filename_absolute,
@@ -339,8 +336,7 @@ def paste_edit(request, pk, paste_set, private_key=None):
     if requested_commit is None:
         commit = paste_set.commit_set.latest('id')
     else:
-        commit = get_object_or_404(Commit,
-                parent_set=paste_set, commit=requested_commit)
+        commit = get_object_or_404(Commit, parent_set=paste_set, commit=requested_commit)
 
     previous_files = []
     for f in commit.paste_set.all():
@@ -404,20 +400,9 @@ def paste_edit(request, pk, paste_set, private_key=None):
 
     # Update the repo
     repo_dir = paste_set.repo
-    repo = git.Repo(repo_dir)
-    index = repo.index
+    git_repo = Repo(repo_dir)
 
-    anonymous = commit_meta_form.cleaned_data['anonymous']
-
-    owner = None
-    if request.user.is_authenticated() and not anonymous:
-        owner = request.user
-
-    # Yes, this is horrible. I know. But there is a bug with Python Git.
-    # See: https://github.com/gitpython-developers/GitPython/issues/39
-    os.environ['USER'] = "Anonymous"
-    if owner:
-        os.environ['USER'] = owner.username
+    owner = get_owner(request, commit_meta_form.cleaned_data, request.user)
 
     if set_form:
         fdata = set_form.cleaned_data
@@ -443,10 +428,11 @@ def paste_edit(request, pk, paste_set, private_key=None):
     priority_filename = os.sep.join([repo_dir, 'priority.txt'])
     with codecs.open(priority_filename, 'w', "utf-8-sig") as priority_file:
         for form_index, form in enumerate(forms):
-            filename, priority = process_pasted_file(form_index, form,
-                                                 repo_dir, index, commit, True)
+            filename, priority = process_pasted_file(form_index, form, repo_dir, git_repo, commit, True)
             form_files.append(filename)
             priority_file.write('%s: %s\n' % (filename, 'priority'))
+
+    git_repo.stage([priority_filename])
 
     # Create the commit from the index
     intersected = set(form_files).intersection(previous_files)
@@ -499,9 +485,6 @@ def paste_fork(request, pk, paste_set, private_key=None):
         '%s-%s' % (dirname_from_description(paste_set.description),
                    owner.username if owner else 'anon' ) + '-%d')
 
-    if os.path.isdir(repo_dir):
-        os.mkdir(repo_dir)
-
     # A requested commit allows us to navigate in history
     requested_commit = request.GET.get('commit')
     latest_commit = paste_set.commit_set.latest('created')
@@ -512,13 +495,13 @@ def paste_fork(request, pk, paste_set, private_key=None):
                 parent_set=paste_set, commit=requested_commit)
 
     # Open the existing repository and navigate to a new head
-    repo = git.Repo(paste_set.repo)
-    clone = repo.clone(repo_dir)
+    git_repo = Repo(paste_set.repo)
+    clone = git_repo.clone(repo_dir, mkdir=True)
     clone.git.reset(commit.commit)
 
     # Set the new owners
     old_commits = list(paste_set.commit_set.all().order_by('created'))
-    paste_set.repo = repo_dir
+    paste_set.git_repo = repo_dir
     paste_set.fork = commit
     paste_set.pk = None
     paste_set.owner = owner
