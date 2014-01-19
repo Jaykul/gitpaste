@@ -7,12 +7,15 @@ ALLOW_ANONYMOUS_ACCESS = True
 
 REPO_DIR = os.sep.join([os.path.dirname(os.path.abspath(__file__)), 'repositories'])
 
+import os
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.sep.join([os.path.dirname(__file__), 'whoosh', 'search-index']),
-    }
-} 
+        'PATH': os.sep.join([os.path.dirname(__file__),
+                        'whoosh', 'search-index']),
+    },
+}
+
 
 USE_ICONS = False
 

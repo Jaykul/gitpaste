@@ -36,7 +36,7 @@
             <div class='pastes'>
             {% for set in user.set_set.all|slice:":10" %}
             <div>
-                <a href='{% url paste_view pk=set.pk %}'>Paste {{ set.pk }}{% if set.description %}: {{ set.description }}{% endif %}</a>
+                <a href='{% url "paste_view" pk=set.pk %}'>Paste {{ set.pk }}{% if set.description %}: {{ set.description }}{% endif %}</a>
             </div>
             <div>
                 {{ set.commit_set.all.count }} commit{{ set.commit_set.all.count|pluralize }}
@@ -59,7 +59,7 @@
         {% endif %}
     {% else %}
         <h1>Hey, you're anonymous.</h1>
-        <p>You should <a href='{% url login %}'>login</a> or <a href='{% url register %}'>register</a> to organize your pastes.</p>
+        <p>You should <a href='{% url "login" %}'>login</a> or <a href='{% url "register" %}'>register</a> to organize your pastes.</p>
     {% endif %}
     </section>
 </section>
