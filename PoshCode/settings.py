@@ -37,6 +37,22 @@ TEMPLATE_DEBUG = DEBUG
 
 AUTH_PROFILE_MODULE = "paste.Profile"
 
+AUTHENTICATION_BACKENDS = (
+    'social_auth.backends.browserid.BrowserIDBackend',
+    'social_auth.backends.OpenIDBackend',
+    'social_auth.backends.twitter.TwitterBackend',
+    'social_auth.backends.facebook.FacebookBackend',
+    #'social_auth.backends.google.GoogleOAuthBackend',
+    'social_auth.backends.google.GoogleOAuth2Backend',
+    #'social_auth.backends.google.GoogleBackend',
+    #'social_auth.backends.yahoo.YahooBackend',
+    'social_auth.backends.contrib.github.GithubBackend',
+    'social_auth.backends.contrib.live.LiveBackend',
+    'social_auth.backends.contrib.yahoo.YahooOAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+
 ADMINS = (
         ('Joel Bennett', 'Jaykul@HuddledMasses.org'),
 )
@@ -157,6 +173,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'haystack',
+    'social_auth',
 )
 
 # A sample logging configuration. The only tangible logging

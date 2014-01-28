@@ -44,14 +44,15 @@ class Set(models.Model):
     expires = models.DateTimeField(null=True)
     created = models.DateTimeField(auto_now_add=True)
     views = models.IntegerField()
+    # downloads = models.IntegerField()
 
     class Meta:
         ordering = ['-created']
         get_latest_by = 'created'
 
-    @property
-    def email(self):
-        return self.owner.preference.email
+    #@property
+    #def username(self):
+    #    return str(self.owner.preference)
 
     @property
     def active_private_key(self):
@@ -74,9 +75,9 @@ class Commit(models.Model):
     diff = models.TextField(null=True, blank=True)
     views = models.IntegerField()
 
-    @property
-    def email(self):
-        return self.owner.preference.email if self.owner else "Anonymous"
+    #@property
+    #def username(self):
+    #    return self.owner.preference.username if self.owner else "Anonymous"
 
     @property
     def short(self):
@@ -98,9 +99,9 @@ class Comment(models.Model):
     comment = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 
-    @property
-    def email(self):
-        return self.owner.preference.email
+    #@property
+    #def username(self):
+    #    return self.owner.preference.username
 
     def __unicode__(self):
         return '%s: %s' % (self.owner, self.commit.commit)
@@ -147,7 +148,7 @@ class Preference(models.Model):
         return self.user.email
 
     def __unicode__(self):
-        return "%s <%s>" % (self.user, self.masked_email)
+        return self.user
 
 
 def get_or_create_preference(user):

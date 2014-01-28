@@ -6,3 +6,7 @@ Garrett Heel <garrettheel@gmail.com>
 
 rhapsodhy <me@rhapsodhy.hu>
 - All pastes and various fixes, cleanups, and more.
+
+Joel Bennett <jaykul@huddledmasses.org>
+- Convert to dulwich, azure
+- Add social logins

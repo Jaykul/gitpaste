@@ -38,7 +38,7 @@ PoshCode.org - anonymous paste
       <a title='{{ commit.commit.views }} view{{ commit.commit.views|pluralize }}' href='{% url "paste_view" pk=paste_set.pk private_key=paste_set.private_key %}?commit={{ commit.commit }}'>{{ commit.commit|slice:":8"}}</a>
       <span class='author'>
         {% if commit.owner %}
-            <a href='{% url "user_pastes" owner=commit.owner.pk %}'>{{ commit.email }}</a>
+            <a href='{% url "user_pastes" owner=commit.owner.pk %}'>{{ commit.owner }}</a>
         {% else %}
             <a href='{% url "anon_pastes" %}'>Anonymous</a>
         {% endif %}
@@ -120,7 +120,7 @@ PoshCode.org - anonymous paste
     </span>
       <br>
       {% if paste_set.description %}"{{ paste_set.description }}"{% endif %}
-      {% if commit_current.owner %} by <strong><a href='{% url "user_pastes" owner=commit_current.owner.pk %}'>{{ commit_current.email }}</a></strong> {% endif %}
+      {% if commit_current.owner %} by <strong><a href='{% url "user_pastes" owner=commit_current.owner.pk %}'>{{ commit_current.owner }}</a></strong> {% endif %}
       <span class='date' title="{{ commit_current.created|localtime }}">
         {{ commit_current.created|naturaltime }}
         with {{ commit_current.views }} 
@@ -130,7 +130,7 @@ PoshCode.org - anonymous paste
         <br>
         <em class='light'>Fork of                
           {% if paste_set.fork.parent_set.owner %}
-            <a href='{% url "user_pastes" owner=paste_set.fork.parent_set.owner.pk %}'>{{ paste_set.fork.parent_set.email }}</a>
+            <a href='{% url "user_pastes" owner=paste_set.fork.parent_set.owner.pk %}'>{{ paste_set.fork.parent_set.owner }}</a>
           {% else %}
             <a href='{% url "anon_pastes" %}'>Anonymous</a>
           {% endif %} at commit 
@@ -187,7 +187,7 @@ PoshCode.org - anonymous paste
             <h1 class='author {% if comment.owner == commit_current.owner %}committer{% endif %}'> 
           {% endif %}
             <a href='{% url "user_pastes" owner=comment.owner.pk %}'>
-              {{ comment.email }}</a> 
+              {{ comment.owner }}</a> 
             <a href='#comment-{{ comment.pk }}' id='comment-{{ comment.pk }}'>#</a>
           </h1>
           <div class='markdown'>{{ comment.comment|markdown:"safe" }}</div>
