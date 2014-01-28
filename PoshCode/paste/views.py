@@ -6,10 +6,11 @@ import pytz
 import json
 import tempfile
 import codecs
+import zipfile
 from datetime import datetime
 from datetime import timedelta
 
-from util import has_access_to_paste, user_owns_paste
+from util import has_access_to_paste, user_owns_paste, slugify_string
 from decorators import private
 import timezone
 
@@ -17,7 +18,14 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import *
 
+from cStringIO import StringIO
+from contextlib import closing
+
 from dulwich.repo import Repo
+from dulwich.patch import write_object_diff
+from dulwich.client import get_transport_and_path
+
+import dulwich.porcelain
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
@@ -28,7 +36,6 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.utils.encoding import smart_str, smart_unicode
 from django.forms.formsets import formset_factory
-from django.template.defaultfilters import slugify
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib import auth
@@ -46,33 +53,41 @@ PasteSetEdit = formset_factory(PasteForm, extra=0)
 
 
 def send_zipfile(data, filename):
-    temp = tempfile.TemporaryFile()
-    temp.write(data)
-    wrapper = FileWrapper(temp)
-    response = HttpResponse(wrapper, content_type='application/zip')
+    response = HttpResponse(content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename=' + filename +'.zip'
-    response['Content-Length'] = temp.tell()
-    temp.seek(0)
+    response['Content-Length'] = len(data)
+    response.write(data)
     return response
 
 
-def _git_diff(git_commit_object, repo):
+def _git_diff(repo, commit):
     diff = None
     try:
-        transversed_commit = git_commit_object.traverse().next()
-        has_history = True
-        diff = repo.git.diff(
-                transversed_commit.hexsha,
-                git_commit_object.hexsha),
+        parent = repo.get_parents(commit)
+        if not len(parent):
+           return None
+
+        parent_tree = repo[parent[0]].tree
+        this_tree = repo[commit].tree 
+
+        diff_io = StringIO()
+
+        changes = repo.object_store.tree_changes(parent_tree, this_tree)
+
+        for (oldpath, newpath), (oldmode, newmode), (oldsha, newsha) in changes:
+           if(newpath is None or os.path.basename(newpath) != 'priority.txt'):
+               write_object_diff(diff_io, repo.object_store, (oldpath, oldmode, oldsha),
+                                                             (newpath, newmode, newsha))
+
+
+        diff_io.reset()
+        diff = "".join(diff_io.readlines())
 
         if not len(diff):
             return None
 
         diff = highlight(
-                repo.git.diff(
-                    transversed_commit.hexsha,
-                    git_commit_object.hexsha,
-                    '--no-color'),
+                diff,
                 DiffLexer(),
                 HtmlFormatter(
                     style='friendly',
@@ -86,7 +101,7 @@ def _git_diff(git_commit_object, repo):
 
 
 def dirname_from_description(description):
-    return "%s" % os.sep.join((settings.REPO_DIR, slugify(description)))
+    return "%s" % os.sep.join((settings.REPO_DIR, slugify_string(description)))
 
 
 def get_owner(request, commit_data, user):
@@ -152,7 +167,7 @@ def paste(request):
     if os.path.isdir(repo_dir):
         repo_dir = get_first_nonexistent_filename(repo_dir + '-%d')
 
-    git_repo = Repo.init(repo_dir, mkdir=True)
+    git_repo = Repo.init(str(repo_dir), mkdir=True)
 
     # Calculate expiration time of set if necessary
     exp_option = set_meta_form.cleaned_data.get('expires')
@@ -195,7 +210,9 @@ def paste(request):
         for form_index, form in enumerate(paste_forms):
             priority_file.write('%s: %s\n' % process_pasted_file(form_index, form, repo_dir, git_repo, commit))
 
-    git_repo.stage([priority_filename])
+    # os.path.relpath(priority_filename,settings.REPO_DIR)
+    # git_repo.stage([priority_filename])
+    git_repo.stage(['priority.txt'])
 
     # Create the commit from the index
     # TODO: Support comments on all the commits
@@ -278,7 +295,7 @@ def process_pasted_file(form_index, form, repo_dir, repo, commit, edit=False):
 
     # Construct a more logical filename for our commit
     filename_base, ext = os.path.splitext(filename)
-    filename_slugify = slugify(filename_base)
+    filename_slugify = slugify_string(filename_base)
     filename_abs_base = os.sep.join((repo_dir, filename_slugify))
     filename_absolute = filename_abs_base + ext
 
@@ -315,7 +332,8 @@ def process_pasted_file(form_index, form, repo_dir, repo, commit, edit=False):
     )
 
     # Add the file to the index and create the paste
-    repo.stage([filename_absolute])
+    # repo.stage([str(filename_absolute)])
+    repo.stage([str(filename)])
     p = Paste.objects.create(
             filename=filename,
             absolute_path=filename_absolute,
@@ -400,7 +418,7 @@ def paste_edit(request, pk, paste_set, private_key=None):
 
     # Update the repo
     repo_dir = paste_set.repo
-    git_repo = Repo(repo_dir)
+    git_repo = Repo(str(repo_dir))
 
     owner = get_owner(request, commit_meta_form.cleaned_data, request.user)
 
@@ -432,20 +450,23 @@ def paste_edit(request, pk, paste_set, private_key=None):
             form_files.append(filename)
             priority_file.write('%s: %s\n' % (filename, 'priority'))
 
-    git_repo.stage([priority_filename])
+    # git_repo.stage([str(priority_filename)])
+    git_repo.stage([str('priority.txt')])
+    index = git_repo.open_index()
 
     # Create the commit from the index
     intersected = set(form_files).intersection(previous_files)
     removed_files = list(set(previous_files) - intersected)
     for f in removed_files:
-        index.remove([os.sep.join([
-            repo_dir,
-            f
-        ])])
-    index.add([priority_filename])
-    new_commit = index.commit('Modified.')
+        # index.remove ... 
+        del index[str(f)]
+    # index.update.add([priority_filename])
+    git_repo.stage([str('priority.txt')])
+    # TODO: Support comments on all the commits
+    new_commit = git_repo.do_commit('Modified.', committer=get_commiter(owner))
+    
     commit.commit = new_commit
-    commit.diff = _git_diff(new_commit, repo)
+    commit.diff = _git_diff(git_repo, new_commit)
     commit.save()
 
     if not paste_set.private:
@@ -495,10 +516,9 @@ def paste_fork(request, pk, paste_set, private_key=None):
                 parent_set=paste_set, commit=requested_commit)
 
     # Open the existing repository and navigate to a new head
-    git_repo = Repo(paste_set.repo)
-    clone = git_repo.clone(repo_dir, mkdir=True)
-    clone.git.reset(commit.commit)
-
+    git_repo = Repo(str(paste_set.repo))
+    clone = git_repo.clone(str(repo_dir), mkdir=True)
+    
     # Set the new owners
     old_commits = list(paste_set.commit_set.all().order_by('created'))
     paste_set.git_repo = repo_dir
@@ -561,13 +581,32 @@ def commit_adopt(request, pk, commit, private_key=None):
 @login_required
 @private(Commit)
 def commit_download(request, pk, commit, private_key=None):
-    sha1 = commit.commit
-    git_repo = git.Repo.init(commit.parent_set.repo)
-    description = commit.parent_set.description
-    filename = 'paste %s %s %s' % (commit.email, description, commit.short)
-    filename = slugify(filename)
-    return send_zipfile(git_repo.git.archive(sha1, format='zip'), filename)
+    ## Increment the downloads
+    #if not commit.downloads:
+    #    commit.downloads = 0
+    #commit.downloads += 1
+    #commit.save()
 
+    # Open the existing repository and navigate to a new head
+    # git_repo = Repo(str(paste_set.repo))
+
+    filename = 'poshcode_%s_%s_%s' % (commit.owner.username if commit.owner else 'anonymous', commit.parent_set.description, commit.short)
+    filename = slugify_string(filename)
+
+    with closing(StringIO()) as stream:
+       zip = zipfile.ZipFile(stream, "w")
+       for paste in commit.paste_set.all():
+          _writeToZip(zip, paste.filename, commit.created.timetuple()[:6], paste.paste)
+       zip.close()
+       bytes = stream.getvalue()
+
+    return send_zipfile(bytes, filename)
+
+def _writeToZip(zip, name, date, content):
+    info = zipfile.ZipInfo(name)
+    info.date_time = date
+    info.compress_type = zipfile.ZIP_DEFLATED
+    zip.writestr(info, content)
 
 def register(request):
     """Handles the logic for registering a user into the system."""
@@ -829,8 +868,7 @@ def live_paste(request):
             owner=owner
     )
 
-    git_repo = git.Repo.init(repo_dir)
-    index = git_repo.index
+    git_repo = Repo.init(str(repo_dir))
 
     # We enumerate over the forms so we can have a way to reference
     # the line numbers in a unique way relevant to the pastes.
@@ -848,7 +886,7 @@ def live_paste(request):
 
         # Construct a more logical filename for our commit
         filename_base, ext = os.path.splitext(filename)
-        filename_slugify = slugify(filename[:len(ext)])
+        filename_slugify = slugify_string(filename[:len(ext)])
         filename_absolute = os.sep.join([
             repo_dir,
             filename
@@ -899,7 +937,8 @@ def live_paste(request):
         )
 
         # Add the file to the index and create the paste
-        index.add([filename_absolute])
+        # git_repo.stage([str(filename_absolute)])
+        git_repo.stage([str(filename)])
         p = Paste.objects.create(
                 filename=filename,
                 absolute_path=filename_absolute,
@@ -912,12 +951,12 @@ def live_paste(request):
 
     # Add a priority file
     priority_file.close()
-    index.add([priority_filename])
+    # git_repo.stage([str(priority_filename)])
+    git_repo.stage([str('priority.txt')])
 
     # Create the commit from the index
-    new_commit = index.commit('Initial paste.')
+    new_commit = git_repo.do_commit('Initial paste.', committer = get_commiter(owner))
     commit.commit = new_commit
-
     commit.save()
 
     if not paste_set.private:
