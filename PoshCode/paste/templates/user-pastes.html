@@ -81,9 +81,11 @@
         <div>
           <h1 class='center'>Your requests echo far, but nothing happens.</h1>
           {% if user == owner %}
-            <p class='tiny gray center'>(a.k.a. you have not <a href='{% url "paste" %}'>created</a> any pastes)</p>
+            <p class='tiny gray center'>(i.e. you have not <a href='{% url "paste" %}'>created</a> any pastes)</p>
+          {% elif owner %}
+            <p class='tiny gray center'>(i.e. this user has not <a href='{% url "paste" %}'>created</a> any pastes)</p>
           {% else %}
-            <p class='tiny gray center'>(a.k.a. this user has not <a href='{% url "paste" %}'>created</a> any pastes)</p>
+            <p class='tiny gray center'>(i.e. nobody has <a href='{% url "paste" %}'>created</a> any pastes, but <a href='{% url "paste" %}'>they will</a> soon)</p>
           {% endif %}
         </div>
       {% endfor %}

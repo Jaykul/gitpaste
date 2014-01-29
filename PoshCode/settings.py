@@ -52,9 +52,6 @@ AUTHENTICATION_BACKENDS = (
     'social_auth.backends.contrib.yahoo.YahooOAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
-
-GITHUB_APP_ID = 'aab29ec0a3e8e6307adf'
-GITHUB_API_SECRET = 'e49d44e64abc587d2a50889030a195451109f8c0'
 GITHUB_EXTRA_DATA = [
     ('avatar_url', 'avatar'),
     ('login', 'login'),
@@ -141,9 +138,6 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '14qix7@zh_00qlyqw+$s(=e)^$7o8xfj(vpj0fws)y@7c1l^bc'
-
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -224,3 +218,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'PoshCode.context_processors.use_icon',
     'PoshCode.context_processors.site',
 )
+
+###############################################################################
+# SECRETS:
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = '14qix7@zh_00qlyqw+$s(=e)^$7o8xfj(vpj0fws)y@7c1l^bc'
+# Get your own 
+GITHUB_APP_ID = 'aab29ec0a3e8e6307adf'
+GITHUB_API_SECRET = 'e49d44e64abc587d2a50889030a195451109f8c0'
