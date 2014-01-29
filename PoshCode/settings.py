@@ -222,7 +222,12 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 ###############################################################################
 # SECRETS:
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '14qix7@zh_00qlyqw+$s(=e)^$7o8xfj(vpj0fws)y@7c1l^bc'
+SECRET_KEY = None
 # Get your own 
-GITHUB_APP_ID = 'aab29ec0a3e8e6307adf'
-GITHUB_API_SECRET = 'e49d44e64abc587d2a50889030a195451109f8c0'
+GITHUB_APP_ID = None
+GITHUB_API_SECRET = None
+
+if SECRET_KEY is None:
+   raise Exception("Please update settings.py and set your SECRET_KEY")
+if GITHUB_API_SECRET is None or GITHUB_API_ID is None:
+   raise Exception("Please update settings.py and set your GITHUB_API_ID and GITHUB_API_SECRET")
