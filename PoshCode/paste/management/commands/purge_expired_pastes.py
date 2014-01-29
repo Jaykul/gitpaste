@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from PoshCode.paste.models import Set
 from datetime import datetime
 
+
 class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):

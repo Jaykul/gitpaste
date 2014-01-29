@@ -8,11 +8,12 @@ ALLOW_ANONYMOUS_ACCESS = True
 REPO_DIR = os.sep.join([os.path.dirname(os.path.abspath(__file__)), 'repositories'])
 
 import os
+
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.sep.join([os.path.dirname(__file__),
-                        'whoosh', 'search-index']),
+        'PATH': os.sep.join([os.path.dirname(__file__), 'whoosh', 'search-index']),
     },
 }
 
@@ -52,6 +53,12 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+GITHUB_APP_ID = 'aab29ec0a3e8e6307adf'
+GITHUB_API_SECRET = 'e49d44e64abc587d2a50889030a195451109f8c0'
+GITHUB_EXTRA_DATA = [
+    ('avatar_url', 'avatar'),
+    ('login', 'login'),
+]
 
 ADMINS = (
         ('Joel Bennett', 'Jaykul@HuddledMasses.org'),
@@ -154,7 +161,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'PoshCode.urls'
-ROOTDIR = os.path.abspath(os.path.dirname(__file__)) 
+ROOTDIR = os.path.abspath(os.path.dirname(__file__))
 
 TEMPLATE_DIRS = (
     os.sep.join([ROOTDIR, 'templates']),

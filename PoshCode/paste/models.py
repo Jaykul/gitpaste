@@ -12,6 +12,7 @@ from PoshCode.settings import generate_icon
 
 timezones = [(tz, tz) for tz in pytz.common_timezones]
 
+
 class DateTimeFieldTZ(models.DateTimeField):
     def __init__(self, *args, **kwargs):
         super(DateTimeFieldTZ, self).__init__(*args, **kwargs)
@@ -50,9 +51,6 @@ class Set(models.Model):
         ordering = ['-created']
         get_latest_by = 'created'
 
-    #@property
-    #def username(self):
-    #    return str(self.owner.preference)
 
     @property
     def active_private_key(self):
@@ -74,10 +72,6 @@ class Commit(models.Model):
     owner = models.ForeignKey(User, null=True, blank=True, default=None)
     diff = models.TextField(null=True, blank=True)
     views = models.IntegerField()
-
-    #@property
-    #def username(self):
-    #    return self.owner.preference.username if self.owner else "Anonymous"
 
     @property
     def short(self):
@@ -158,13 +152,13 @@ def get_or_create_preference(user):
         try:
             at, email = str(user.email).split('@')
             masked_email = '%s%s@%s' % (at[:2], len(at[2:]) * '*', email)
-        except ValueError, e:
-            email = user.username
+        except ValueError:
             masked_email = ''
         return Preference.objects.create(
-                user=user, masked_email=masked_email, 
-                gravatar=generate_icon(user.email)
+            user=user, masked_email=masked_email,
+            gravatar=generate_icon(user.email)
         )
     return preference
+
 
 User.preference = property(lambda u: get_or_create_preference(u))

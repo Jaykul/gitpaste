@@ -16,14 +16,14 @@ from django.conf import settings
 
 __all__ = [
     'utc', 'get_default_timezone', 'get_current_timezone',
-    'activate', 'deactivate', 'override',
+    'activate', 'deactivate', 'Override',
     'localtime', 'is_naive', 'is_aware', 'make_aware', 'make_naive',
 ]
 
 
 # UTC and local time zones
-
 ZERO = timedelta(0)
+
 
 class UTC(tzinfo):
     """
@@ -41,6 +41,7 @@ class UTC(tzinfo):
     def dst(self, dt):
         return ZERO
 
+
 class LocalTimezone(tzinfo):
     """
     Local time implementation taken from Python's docs.
@@ -52,30 +53,31 @@ class LocalTimezone(tzinfo):
     def __init__(self):
         # This code is moved in __init__ to execute it as late as possible
         # See get_default_timezone().
-        self.STDOFFSET = timedelta(seconds=-_time.timezone)
+        self.standard_offset = timedelta(seconds=-_time.timezone)
         if _time.daylight:
-            self.DSTOFFSET = timedelta(seconds=-_time.altzone)
+            self.dst_offset = timedelta(seconds=-_time.altzone)
         else:
-            self.DSTOFFSET = self.STDOFFSET
-        self.DSTDIFF = self.DSTOFFSET - self.STDOFFSET
+            self.dst_offset = self.standard_offset
+        self.dst_diff = self.dst_offset - self.standard_offset
         tzinfo.__init__(self)
 
     def utcoffset(self, dt):
-        if self._isdst(dt):
-            return self.DSTOFFSET
+        if self._is_dst(dt):
+            return self.dst_offset
         else:
-            return self.STDOFFSET
+            return self.standard_offset
 
     def dst(self, dt):
-        if self._isdst(dt):
-            return self.DSTDIFF
+        if self._is_dst(dt):
+            return self.dst_diff
         else:
             return ZERO
 
     def tzname(self, dt):
-        return _time.tzname[self._isdst(dt)]
+        return _time.tzname[self._is_dst(dt)]
 
-    def _isdst(self, dt):
+    @staticmethod
+    def _is_dst(dt):
         tt = (dt.year, dt.month, dt.day,
               dt.hour, dt.minute, dt.second,
               dt.weekday(), 0, 0)
@@ -91,6 +93,7 @@ utc = pytz.utc if pytz else UTC()
 # wrap the expression in a function and cache the result.
 # If you change settings.TIME_ZONE in tests, reset _localtime to None.
 _localtime = None
+
 
 def get_default_timezone():
     """
@@ -108,6 +111,7 @@ def get_default_timezone():
             _localtime = LocalTimezone()
     return _localtime
 
+
 # This function exists for consistency with get_current_timezone_name
 def get_default_timezone_name():
     """
@@ -115,7 +119,9 @@ def get_default_timezone_name():
     """
     return _get_timezone_name(get_default_timezone())
 
+
 _active = local()
+
 
 def get_current_timezone():
     """
@@ -123,11 +129,13 @@ def get_current_timezone():
     """
     return getattr(_active, "value", get_default_timezone())
 
+
 def get_current_timezone_name():
     """
     Returns the name of the currently active time zone.
     """
     return _get_timezone_name(get_current_timezone())
+
 
 def _get_timezone_name(timezone):
     """
@@ -141,11 +149,10 @@ def _get_timezone_name(timezone):
         local_now = datetime.now(timezone)
         return timezone.tzname(local_now)
 
-# Timezone selection functions.
 
+# Timezone selection functions.
 # These functions don't change os.environ['TZ'] and call time.tzset()
 # because it isn't thread safe.
-
 def activate(timezone):
     """
     Sets the time zone for the current thread.
@@ -160,6 +167,7 @@ def activate(timezone):
     else:
         raise ValueError("Invalid timezone: %r" % timezone)
 
+
 def deactivate():
     """
     Unsets the time zone for the current thread.
@@ -169,7 +177,8 @@ def deactivate():
     if hasattr(_active, "value"):
         del _active.value
 
-class override(object):
+
+class Override(object):
     """
     Temporarily set the time zone for the current thread.
 
@@ -181,6 +190,7 @@ class override(object):
     time zone name, or ``None``. If is it a time zone name, pytz is required.
     If it is ``None``, Django enables the default time zone.
     """
+
     def __init__(self, timezone):
         self.timezone = timezone
         self.old_timezone = getattr(_active, 'value', None)
@@ -191,6 +201,7 @@ class override(object):
         else:
             activate(self.timezone)
 
+    #noinspection PyUnusedLocal
     def __exit__(self, exc_type, exc_value, traceback):
         if self.old_timezone is not None:
             _active.value = self.old_timezone
@@ -211,12 +222,13 @@ def localtime(value, use_tz=None):
         and (settings.USE_TZ if use_tz is None else use_tz)
         and not is_naive(value)
         and getattr(value, 'convert_to_local_time', True)):
-        timezone = get_current_timezone()
-        value = value.astimezone(timezone)
-        if hasattr(timezone, 'normalize'):
-            # available for pytz time zones
-            value = timezone.normalize(value)
+            timezone = get_current_timezone()
+            value = value.astimezone(timezone)
+            if hasattr(timezone, 'normalize'):
+                # available for pytz time zones
+                value = timezone.normalize(value)
     return value
+
 
 def now():
     """
@@ -228,9 +240,9 @@ def now():
     else:
         return datetime.now()
 
+
 # By design, these four functions don't perform any checks on their arguments.
 # The caller should ensure that they don't receive an invalid value like None.
-
 def is_aware(value):
     """
     Determines if a given datetime.datetime is aware.
@@ -240,6 +252,7 @@ def is_aware(value):
     """
     return value.tzinfo is not None and value.tzinfo.utcoffset(value) is not None
 
+
 def is_naive(value):
     """
     Determines if a given datetime.datetime is naive.
@@ -248,6 +261,7 @@ def is_naive(value):
     http://docs.python.org/library/datetime.html#datetime.tzinfo
     """
     return value.tzinfo is None or value.tzinfo.utcoffset(value) is None
+
 
 def make_aware(value, timezone):
     """
@@ -259,6 +273,7 @@ def make_aware(value, timezone):
     else:
         # may be wrong around DST changes
         return value.replace(tzinfo=timezone)
+
 
 def make_naive(value, timezone):
     """

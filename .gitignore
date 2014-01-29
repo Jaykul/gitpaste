@@ -2,3 +2,4 @@ site-packages
 obj/
 bin/
 *.pyc
+.idea/

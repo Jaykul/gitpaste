@@ -1,11 +1,12 @@
 """Timezone helper functions.
 
-This module uses pytz when it's available and fallbacks when it isn't.
+This module uses pytz when it's available and falls back when it isn't.
 """
 
 from PoshCode.paste.timezone import activate
 
 from BeautifulSoup import BeautifulSoup
+
 
 class TimezoneMiddleware(object):
     def process_request(self, request):

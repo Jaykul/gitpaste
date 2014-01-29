@@ -2,13 +2,15 @@ from django.conf.urls import patterns, include, url
 from django.views.generic import RedirectView
 
 from django.contrib import admin
+
 admin.autodiscover()
 
-urlpatterns = patterns('PoshCode.paste.views',
+urlpatterns = patterns(
+    'PoshCode.paste.views',
     url(r'^live/$', 'live_paste', name='live_paste'),
-    url(r'^(?P<pk>\d+)/$', RedirectView.as_view(url= '/paste/%(pk)s/')),
-    url(r'^(?P<pk>\d+)/(?P<private_key>[a-zA-Z0-9]+)?/?$', RedirectView.as_view(url= '/paste/%(pk)s/%(private_key)s/')),
-    url(r'^owner/$', RedirectView.as_view(url= '/owner/all/')),
+    url(r'^(?P<pk>\d+)/$', RedirectView.as_view(url='/paste/%(pk)s/')),
+    url(r'^(?P<pk>\d+)/(?P<private_key>[a-zA-Z0-9]+)?/?$', RedirectView.as_view(url='/paste/%(pk)s/%(private_key)s/')),
+    url(r'^owner/$', RedirectView.as_view(url='/owner/all/')),
     url(r'^owner/anonymous/', 'user_pastes', name='anon_pastes'),
     url(r'^owner/(?P<owner>.+)/', 'user_pastes', name='user_pastes'),
     url(r'^paste/(?P<pk>\d+)/adopt/(?P<private_key>[a-zA-Z0-9]+)?/?$', 'paste_adopt', name='paste_adopt'),
@@ -30,6 +32,6 @@ urlpatterns = patterns('PoshCode.paste.views',
     url(r'^accounts/profile/$', 'preference', name='preference'),
     url(r'^accounts/timezone/$', 'set_timezone', name='set_timezone'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/', include(admin.site.urls)),    
+    url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'paste', name='paste'),
 )

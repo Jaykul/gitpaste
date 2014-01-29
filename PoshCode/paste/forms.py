@@ -1,45 +1,46 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 
 from models import *
 
 from pygments import lexers
 
-# Add preferred lexers here. This list will not be explicitly sorted. 
+# Add preferred lexers here. This list will not be explicitly sorted.
 preferred_lexers = [
-        'TextLexer', 
-        'ActionScriptLexer', 
-        'CLexer', 
-        'CSharpLexer', 
-        'CppLexer', 
-        'CommonLispLexer', 
-        'CssLexer',
-        'DiffLexer',
-        'ErlangLexer',
-        'HaskellLexer',
-        'HtmlLexer',
-        'JavaLexer',
-        'JavascriptLexer',
-        'LuaLexer',
-        'ObjectiveCLexer',
-        'PerlLexer',
-        'PhpLexer',
-        'PythonLexer',
-        'RubyLexer',
-        'ScalaLexer',
-        'SchemeLexer',
-        'SqlLexer',
-        'TexLexer',
-        'XmlLexer',
+    'TextLexer',
+    'ActionScriptLexer',
+    'CLexer',
+    'CSharpLexer',
+    'CppLexer',
+    'CommonLispLexer',
+    'CssLexer',
+    'DiffLexer',
+    'ErlangLexer',
+    'HaskellLexer',
+    'HtmlLexer',
+    'JavaLexer',
+    'JavascriptLexer',
+    'LuaLexer',
+    'ObjectiveCLexer',
+    'PerlLexer',
+    'PhpLexer',
+    'PythonLexer',
+    'RubyLexer',
+    'ScalaLexer',
+    'SchemeLexer',
+    'SqlLexer',
+    'TexLexer',
+    'XmlLexer',
 ]
+
 
 def unwrap_lexer(lang):
     language = lexers.LEXERS[lang]
     lex, name, alias, exts, mime = language
     if len(exts):
-        return ('%s;%s' % (lang, exts[0][1:]), name)
-    return ('%s;.txt' % lang, name)
+        return '%s;%s' % (lang, exts[0][1:]), name
+    return '%s;.txt' % lang, name
 
 
 # Create our list of languages
@@ -51,19 +52,21 @@ languages = map(unwrap_lexer, preferred_lexers)
 base_languages.sort()
 
 # Add the base cases and base languages
-languages.append(('TextLexer;.txt', '----'),)
+languages.append(('TextLexer;.txt', '----'), )
 languages.extend(base_languages)
+
 
 class CommitMetaForm(forms.Form):
     """These correspond to a particular commit or iteration of a paste."""
     anonymous = forms.BooleanField(required=False)
+
 
 class SetMetaForm(forms.Form):
     """Extra set options"""
     anyone_can_edit = forms.BooleanField(required=False)
     private = forms.BooleanField(required=False)
     expires = forms.ChoiceField(
-        choices = (
+        choices=(
             ("never", "Never"),
             ("hour", "1 Hour"),
             ("day", "1 Day"),
@@ -71,11 +74,12 @@ class SetMetaForm(forms.Form):
         ), required=False
     )
 
+
 class SetForm(forms.Form):
     description = forms.CharField(max_length=256, required=False,
-            widget=forms.widgets.TextInput(attrs={
-                'placeholder': 'add a paste description...'
-            }))
+                                  widget=forms.widgets.TextInput(attrs={
+                                      'placeholder': 'add a paste description...'
+                                  }))
 
     def clean_description(self):
         d = self.cleaned_data.get('description')
@@ -89,10 +93,10 @@ class SetForm(forms.Form):
 class PasteForm(forms.Form):
     priority = forms.IntegerField(initial=0)
     filename = forms.CharField(max_length=256, required=False,
-            widget=forms.widgets.TextInput(attrs={
-                'placeholder': 'add a file name...',
-                'class': 'filename'
-            }))
+                               widget=forms.widgets.TextInput(attrs={
+                                   'placeholder': 'add a file name...',
+                                   'class': 'filename'
+                               }))
 
     def clean_filename(self):
         d = self.cleaned_data.get('filename')
@@ -104,16 +108,15 @@ class PasteForm(forms.Form):
 
     paste = forms.CharField(widget=forms.Textarea, required=False)
     language = forms.ChoiceField(
-            choices=languages,
-            required=False,
-            widget=forms.Select(attrs={'tabindex': -1})
+        choices=languages,
+        required=False,
+        widget=forms.Select(attrs={'tabindex': -1})
     )
 
 
 class UserCreationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
-        super(UserCreationForm, self).__init__(*args,
-**kwargs)
+        super(UserCreationForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = User
@@ -133,7 +136,8 @@ class UserCreationForm(UserCreationForm):
 class CommentForm(forms.Form):
     comment = forms.CharField(required=True, widget=forms.Textarea)
 
+
 class PreferenceForm(forms.ModelForm):
     class Meta:
         model = Preference
-        exclude = ('user','masked_email','gravatar')
+        exclude = ('user', 'masked_email', 'gravatar')

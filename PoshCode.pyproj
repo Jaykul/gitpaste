@@ -43,7 +43,6 @@
     <Compile Include="PoshCode\paste\middleware.py" />
     <Compile Include="PoshCode\paste\models.py" />
     <Compile Include="PoshCode\paste\search_indexes.py" />
-    <Compile Include="PoshCode\paste\templatetags\elapsed.py" />
     <Compile Include="PoshCode\paste\templatetags\tz.py" />
     <Compile Include="PoshCode\paste\templatetags\__init__.py" />
     <Compile Include="PoshCode\paste\tests.py" />
@@ -52,7 +51,6 @@
     <Compile Include="PoshCode\paste\util.py" />
     <Compile Include="PoshCode\paste\views.py" />
     <Compile Include="PoshCode\paste\__init__.py" />
-    <Compile Include="PoshCode\search_sites.py" />
     <Compile Include="PoshCode\__init__.py" />
     <Compile Include="PoshCode\settings.py" />
     <Compile Include="PoshCode\urls.py" />
@@ -4525,13 +4523,6 @@
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="PoshCode\db.sqlite3" />
-    <Content Include="PoshCode\paste\admin.pyc" />
-    <Content Include="PoshCode\paste\decorators.pyc" />
-    <Content Include="PoshCode\paste\forms.pyc" />
-    <Content Include="PoshCode\paste\management\__init__.pyc" />
-    <Content Include="PoshCode\paste\middleware.pyc" />
-    <Content Include="PoshCode\paste\models.pyc" />
-    <Content Include="PoshCode\paste\search_indexes.pyc" />
     <Content Include="PoshCode\paste\static\img\chosen-sprite.png" />
     <Content Include="PoshCode\paste\static\img\default-icon.png" />
     <Content Include="PoshCode\paste\static\img\favorite.png" />
@@ -4557,14 +4548,6 @@
     <Content Include="PoshCode\paste\templates\search\search.html" />
     <Content Include="PoshCode\paste\templates\user-pastes.html" />
     <Content Include="PoshCode\paste\templates\users.html" />
-    <Content Include="PoshCode\paste\templatetags\elapsed.pyc" />
-    <Content Include="PoshCode\paste\templatetags\tz.pyc" />
-    <Content Include="PoshCode\paste\templatetags\__init__.pyc" />
-    <Content Include="PoshCode\paste\timezone.pyc" />
-    <Content Include="PoshCode\paste\urls.pyc" />
-    <Content Include="PoshCode\paste\util.pyc" />
-    <Content Include="PoshCode\paste\views.pyc" />
-    <Content Include="PoshCode\paste\__init__.pyc" />
     <Content Include="PoshCode\static\.gitignore" />
     <Content Include="PoshCode\static\.gitignore" />
     <Content Include="PoshCode\templates\404.html" />

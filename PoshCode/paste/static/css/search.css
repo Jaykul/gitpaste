@@ -1,23 +1,43 @@
-div.results {
+div.search, div.results {
     width: 60%;
     margin: 0 auto;
 }
 
-div.results > h1 {
-    margin-left: 20px;
-}
-
-div.results > p {
-    margin-left: 20px;
-    margin-top: -10px;
-}
-
-div.results > form > .entry {
+div.search > form > .entry {
     padding: 10px;
     margin-bottom: 20px;
 }
 
-div.search-submit {
-    clear: both;
+div.search ul, div.search ul li {
+    padding: 0px; margin: 0px;
+    display: inline;
+}
+
+div.search > p {
     margin-left: 20px;
+    margin-top: -10px;
+}
+
+
+div.results div.entry {
+    background: transparent;
+    border: 0px solid transparent;
+}
+div.results div.entry ol {
+    padding: 0 0 0 15px;
+}
+div.results div.entry li {
+    padding: 3px;
+    margin: 5px 0px;
+    border-radius: 5px;
+    background: #eeeeee;
+    border: 1px solid #DDDDDD;
+}
+div.results div.entry li:nth-child(odd) {
+    background: #c5c5c5;
+    border: 1px solid #999;
+}
+div.results div.entry li pre {
+    padding: 0px;
+    margin: 0px 0px 0px 10px;
 }

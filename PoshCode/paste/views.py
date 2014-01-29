@@ -16,6 +16,7 @@ import timezone
 
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
+from pygments.lexers import DiffLexer
 from pygments.lexers import *
 
 from cStringIO import StringIO
@@ -23,9 +24,6 @@ from contextlib import closing
 
 from dulwich.repo import Repo
 from dulwich.patch import write_object_diff
-from dulwich.client import get_transport_and_path
-
-import dulwich.porcelain
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
@@ -54,7 +52,7 @@ PasteSetEdit = formset_factory(PasteForm, extra=0)
 
 def send_zipfile(data, filename):
     response = HttpResponse(content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename=' + filename +'.zip'
+    response['Content-Disposition'] = 'attachment; filename=' + filename + '.zip'
     response['Content-Length'] = len(data)
     response.write(data)
     return response
@@ -65,20 +63,20 @@ def _git_diff(repo, commit):
     try:
         parent = repo.get_parents(commit)
         if not len(parent):
-           return None
+            return None
 
         parent_tree = repo[parent[0]].tree
-        this_tree = repo[commit].tree 
+        this_tree = repo[commit].tree
 
         diff_io = StringIO()
 
         changes = repo.object_store.tree_changes(parent_tree, this_tree)
 
-        for (oldpath, newpath), (oldmode, newmode), (oldsha, newsha) in changes:
-           if(newpath is None or os.path.basename(newpath) != 'priority.txt'):
-               write_object_diff(diff_io, repo.object_store, (oldpath, oldmode, oldsha),
-                                                             (newpath, newmode, newsha))
-
+        for (old_path, new_path), (old_mode, new_mode), (old_sha, new_sha) in changes:
+            if new_path is None or os.path.basename(new_path) != 'priority.txt':
+                write_object_diff(diff_io, repo.object_store,
+                                  (old_path, old_mode, old_sha),
+                                  (new_path, new_mode, new_sha))
 
         diff_io.reset()
         diff = "".join(diff_io.readlines())
@@ -87,17 +85,17 @@ def _git_diff(repo, commit):
             return None
 
         diff = highlight(
-                diff,
-                DiffLexer(),
-                HtmlFormatter(
-                    style='friendly',
-                    linenos='table',
-                    lineanchors='diff',
-                    anchorlinenos=True),
-                )
+            diff,
+            DiffLexer(),
+            HtmlFormatter(
+                style='friendly',
+                linenos='table',
+                lineanchors='diff',
+                anchorlinenos=True),
+        )
         return diff
     except StopIteration, e:
-        return None
+        return diff
 
 
 def dirname_from_description(description):
@@ -110,12 +108,14 @@ def get_owner(request, commit_data, user):
     else:
         return None
 
+
 def get_commiter(owner):
-   gitName = "Anonymous"
-   if owner:
-       gitName = owner.get_full_name() or owner.get_username()
-       gitName = ("{} <{}>".format(gitName, owner.email) if owner.email else gitName)
-   return gitName
+    git_name = "Anonymous"
+    if owner:
+        git_name = owner.get_full_name() or owner.get_username()
+        git_name = ("{} <{}>".format(git_name, owner.email) if owner.email else git_name)
+    return git_name
+
 
 def paste(request):
     commit_kwargs = {}
@@ -137,10 +137,10 @@ def paste(request):
             'set_meta_form': SetMetaForm(),
         }, RequestContext(request))
 
-    paste_forms      = PasteSet(request.POST)
-    set_form         = SetForm(request.POST)
+    paste_forms = PasteSet(request.POST)
+    set_form = SetForm(request.POST)
     commit_meta_form = CommitMetaForm(request.POST, initial=commit_kwargs)
-    set_meta_form    = SetMetaForm(request.POST)
+    set_meta_form = SetMetaForm(request.POST)
 
     if not (paste_forms.is_valid() and
             set_form.is_valid() and
@@ -154,16 +154,16 @@ def paste(request):
             'set_meta_form': set_meta_form,
         }, RequestContext(request))
 
-    owner       = get_owner(request, commit_meta_form.cleaned_data, request.user)
-    description = set_form.cleaned_data.get('description')
-    private     = set_meta_form.cleaned_data.get('private')
+    set_owner = get_owner(request, commit_meta_form.cleaned_data, request.user)
+    set_description = set_form.cleaned_data.get('description')
+    set_private = set_meta_form.cleaned_data.get('private')
     allow_edits = set_meta_form.cleaned_data.get('anyone_can_edit')
 
-    repo_dir = dirname_from_description(description)
-    if not len(description):
+    repo_dir = dirname_from_description(set_description)
+    if not len(set_description):
         repo_dir = dirname_from_description(
             ''.join(random.sample(string.ascii_letters + string.digits,
-                random.randrange(20,30))))
+                                  random.randrange(20, 30))))
     if os.path.isdir(repo_dir):
         repo_dir = get_first_nonexistent_filename(repo_dir + '-%d')
 
@@ -172,36 +172,35 @@ def paste(request):
     # Calculate expiration time of set if necessary
     exp_option = set_meta_form.cleaned_data.get('expires')
     exp_map = {
-        'day'   : timedelta(days=1),
-        'hour'  : timedelta(hours=1),
-        'month' : timedelta(365/12),
+        'day': timedelta(days=1),
+        'hour': timedelta(hours=1),
+        'month': timedelta(365 / 12),
     }
     exp_time = datetime.utcnow() + exp_map[exp_option] if exp_option in exp_map else None
 
     # Generate a random hash for private access (20-30 characters from letters & numbers)
     private_key = ''.join(random.sample(string.ascii_letters + string.digits,
-                                    random.randrange(20,30)))
+                                        random.randrange(20, 30)))
 
     # Create a new paste set so we can reference our paste.
     paste_set = Set.objects.create(
-            views=0,
-            repo=repo_dir,
-            owner=owner,
-            description=description,
-            private=private,
-            anyone_can_edit=allow_edits,
-            private_key=private_key,
-            expires=exp_time,
+        views=0,
+        repo=repo_dir,
+        owner=set_owner,
+        description=set_description,
+        private=set_private,
+        anyone_can_edit=allow_edits,
+        private_key=private_key,
+        expires=exp_time,
     )
 
     # Initialize a commit, git repository, and pull the current index.
     commit = Commit.objects.create(
-            views=0,
-            parent_set=paste_set,
-            commit='',
-            owner=owner
+        views=0,
+        parent_set=paste_set,
+        commit='',
+        owner=set_owner
     )
-
 
     # We enumerate over the forms so we can have a way to reference
     # the line numbers in a unique way relevant to the pastes.
@@ -216,7 +215,7 @@ def paste(request):
 
     # Create the commit from the index
     # TODO: Support comments on all the commits
-    new_commit = git_repo.do_commit('Initial paste.', committer=get_commiter(owner))
+    new_commit = git_repo.do_commit('Initial paste.', committer=get_commiter(set_owner))
     commit.commit = new_commit
     commit.save()
 
@@ -242,8 +241,8 @@ def paste_view(request, pk, paste_set, private_key=None):
     favorited = False
     if request.user.is_authenticated():
         favorited = Favorite.objects.filter(
-                parent_set=paste_set,
-                user=request.user).exists()
+            parent_set=paste_set,
+            user=request.user).exists()
 
     # A requested commit allows us to navigate in history
     latest_commit = paste_set.commit_set.latest('created')
@@ -251,7 +250,7 @@ def paste_view(request, pk, paste_set, private_key=None):
         commit = latest_commit
     else:
         commit = get_object_or_404(Commit,
-                parent_set=paste_set, commit=requested_commit)
+                                   parent_set=paste_set, commit=requested_commit)
 
     if not commit.views:
         commit.views = 0
@@ -262,9 +261,9 @@ def paste_view(request, pk, paste_set, private_key=None):
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid() and request.user.is_authenticated():
             comment = Comment.objects.create(
-                    commit=commit,
-                    owner=request.user,
-                    comment=comment_form.cleaned_data['comment']
+                commit=commit,
+                owner=request.user,
+                comment=comment_form.cleaned_data['comment']
             )
 
     editable = False
@@ -283,11 +282,12 @@ def paste_view(request, pk, paste_set, private_key=None):
         'comment_form': comment_form,
     }, RequestContext(request))
 
+
 def process_pasted_file(form_index, form, repo_dir, repo, commit, edit=False):
     data = form.cleaned_data
     filename = data['filename']
     language_lex, language = data['language'].split(';')
-    paste = data['paste']
+    paste_code = data['paste']
 
     # If we don't specify a filename, then obviously it is lonely
     if not len(filename):
@@ -297,7 +297,7 @@ def process_pasted_file(form_index, form, repo_dir, repo, commit, edit=False):
     filename_base, ext = os.path.splitext(filename)
     filename_slugify = slugify_string(filename_base)
     filename_abs_base = os.sep.join((repo_dir, filename_slugify))
-    filename_absolute = filename_abs_base + ext
+    filename_absolute = str(filename_abs_base + ext)
 
     # If no extension was specified in the file, then we can append
     # the extension from the lexer.
@@ -307,44 +307,43 @@ def process_pasted_file(form_index, form, repo_dir, repo, commit, edit=False):
         ext = language
 
     if os.path.exists(filename_absolute) and not edit:
-        filename_absolute = \
-                get_first_nonexistent_filename(filename_abs_base + '-%d' + ext)
+        filename_absolute = get_first_nonexistent_filename(filename_abs_base + '-%d' + ext)
         filename = os.path.basename(filename_absolute)
 
-    paste = '\n'.join((line.rstrip()
-                       for line in smart_unicode(paste).splitlines()))
+    paste_code = '\n'.join((line.rstrip() for line in smart_unicode(paste_code).splitlines()))
 
     # Open the file, write the paste, call it good.
     with codecs.open(filename_absolute, "w", "utf-8-sig") as f:
-        f.write(paste)
+        f.write(paste_code)
 
     # This is a bit nasty and a get_by_ext something exist in pygments.
     # However, globals() is just much more fun.
     lex = globals()[language_lex]
     paste_formatted = highlight(
-            paste,
-            lex(),
-            HtmlFormatter(
-                style='friendly',
-                linenos='table',
-                lineanchors='line-%s' % form_index,
-                anchorlinenos=True)
+        paste_code,
+        lex(),
+        HtmlFormatter(
+            style='friendly',
+            linenos='table',
+            lineanchors='line-%s' % form_index,
+            anchorlinenos=True)
     )
 
     # Add the file to the index and create the paste
     # repo.stage([str(filename_absolute)])
     repo.stage([str(filename)])
     p = Paste.objects.create(
-            filename=filename,
-            absolute_path=filename_absolute,
-            paste=paste,
-            priority=data['priority'],
-            paste_formatted=paste_formatted,
-            language=data['language'],
-            revision=commit
+        filename=filename,
+        absolute_path=filename_absolute,
+        paste=paste_code,
+        priority=data['priority'],
+        paste_formatted=paste_formatted,
+        language=data['language'],
+        revision=commit
     )
 
-    return (filename, data['priority'])
+    return filename, data['priority']
+
 
 @private(Set)
 def paste_edit(request, pk, paste_set, private_key=None):
@@ -362,11 +361,11 @@ def paste_edit(request, pk, paste_set, private_key=None):
 
     # Populate our initial data
     initial_data = []
-    for paste in commit.paste_set.all():
+    for p in commit.paste_set.all():
         initial_data.append({
-            'filename': paste.filename,
-            'paste': paste.paste,
-            'language': paste.language,
+            'filename': p.filename,
+            'paste': p.paste,
+            'language': p.language,
         })
     initial_set_meta = {
         'private': paste_set.private,
@@ -434,10 +433,10 @@ def paste_edit(request, pk, paste_set, private_key=None):
     paste_set.save()
 
     commit = Commit.objects.create(
-            views=0,
-            parent_set=paste_set,
-            commit='',
-            owner=owner
+        views=0,
+        parent_set=paste_set,
+        commit='',
+        owner=owner
     )
 
     # We enumerate over the forms so we can have a way to reference
@@ -458,13 +457,13 @@ def paste_edit(request, pk, paste_set, private_key=None):
     intersected = set(form_files).intersection(previous_files)
     removed_files = list(set(previous_files) - intersected)
     for f in removed_files:
-        # index.remove ... 
+        # index.remove ...
         del index[str(f)]
-    # index.update.add([priority_filename])
+        # index.update.add([priority_filename])
     git_repo.stage([str('priority.txt')])
     # TODO: Support comments on all the commits
     new_commit = git_repo.do_commit('Modified.', committer=get_commiter(owner))
-    
+
     commit.commit = new_commit
     commit.diff = _git_diff(git_repo, new_commit)
     commit.save()
@@ -475,6 +474,7 @@ def paste_edit(request, pk, paste_set, private_key=None):
         return redirect('paste_view', pk=paste_set.pk, private_key=paste_set.private_key)
 
 
+#noinspection PyUnusedLocal
 @login_required
 @private(Set)
 def paste_delete(request, pk, paste_set, private_key=None):
@@ -482,6 +482,7 @@ def paste_delete(request, pk, paste_set, private_key=None):
     return redirect('paste')
 
 
+#noinspection PyUnusedLocal
 @login_required
 @private(Set)
 def paste_favorite(request, pk, paste_set, private_key=None):
@@ -491,20 +492,27 @@ def paste_favorite(request, pk, paste_set, private_key=None):
         Favorite.objects.create(parent_set=paste_set, user=request.user)
     return HttpResponse()
 
+
 def get_first_nonexistent_filename(format_string):
+    """
+    Takes a string with an numeric format specifier in it and increments it until an existing file is not found
+    @param format_string: basestring with %d in it
+    @type format_string: basestring
+    """
     i = 1
     while os.path.exists(format_string % i):
-        i+=1
-    return format_string % i
+        i += 1
+    return str(format_string % i)
 
 
+#noinspection PyUnusedLocal
 @login_required
 @private(Set)
 def paste_fork(request, pk, paste_set, private_key=None):
     owner = request.user
     repo_dir = get_first_nonexistent_filename(
         '%s-%s' % (dirname_from_description(paste_set.description),
-                   owner.username if owner else 'anon' ) + '-%d')
+                   owner.username if owner else 'anon') + '-%d')
 
     # A requested commit allows us to navigate in history
     requested_commit = request.GET.get('commit')
@@ -513,12 +521,12 @@ def paste_fork(request, pk, paste_set, private_key=None):
         commit = latest_commit
     else:
         commit = get_object_or_404(Commit,
-                parent_set=paste_set, commit=requested_commit)
+                                   parent_set=paste_set, commit=requested_commit)
 
     # Open the existing repository and navigate to a new head
     git_repo = Repo(str(paste_set.repo))
     clone = git_repo.clone(str(repo_dir), mkdir=True)
-    
+
     # Set the new owners
     old_commits = list(paste_set.commit_set.all().order_by('created'))
     paste_set.git_repo = repo_dir
@@ -535,28 +543,30 @@ def paste_fork(request, pk, paste_set, private_key=None):
         old_commit.parent_set = paste_set
         old_commit.owner = owner
         old_commit.save()
-        for paste in pastes:
-            paste.revision = old_commit
-            paste.pk = None
-            paste.save()
+        for p in pastes:
+            p.revision = old_commit
+            p.pk = None
+            p.save()
         if commit.commit == old_commit.commit:
             break
 
     return redirect('paste_view', pk=paste_set.pk)
 
+
 @private(Paste)
-def paste_raw(request, pk, paste, private_key=None):
+def paste_raw(request, pk, paste_set, private_key=None):
     download = request.GET.get('download')
-    filename = paste.filename
+    filename = paste_set.filename
     if download:
         response = HttpResponse(
-                paste.paste, mimetype='application/force-download')
+            paste_set.paste, mimetype='application/force-download')
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
     else:
-        response = HttpResponse(paste.paste, mimetype='text/plain')
+        response = HttpResponse(paste_set.paste, mimetype='text/plain')
     return response
 
 
+#noinspection PyUnusedLocal
 @login_required
 @private(Set)
 def paste_adopt(request, pk, paste_set, private_key=None):
@@ -567,6 +577,7 @@ def paste_adopt(request, pk, paste_set, private_key=None):
     return redirect('paste_view', pk=paste_set.pk)
 
 
+#noinspection PyUnusedLocal
 @login_required
 @private(Commit)
 def commit_adopt(request, pk, commit, private_key=None):
@@ -578,6 +589,7 @@ def commit_adopt(request, pk, commit, private_key=None):
     return redirect('paste_view', pk=commit.parent_set.pk)
 
 
+#noinspection PyUnusedLocal
 @login_required
 @private(Commit)
 def commit_download(request, pk, commit, private_key=None):
@@ -590,36 +602,39 @@ def commit_download(request, pk, commit, private_key=None):
     # Open the existing repository and navigate to a new head
     # git_repo = Repo(str(paste_set.repo))
 
-    filename = 'poshcode_%s_%s_%s' % (commit.owner.username if commit.owner else 'anonymous', commit.parent_set.description, commit.short)
+    filename = 'poshcode_%s_%s_%s' % (
+        commit.owner.username if commit.owner else 'anonymous', commit.parent_set.description, commit.short)
     filename = slugify_string(filename)
 
     with closing(StringIO()) as stream:
-       zip = zipfile.ZipFile(stream, "w")
-       for paste in commit.paste_set.all():
-          _writeToZip(zip, paste.filename, commit.created.timetuple()[:6], paste.paste)
-       zip.close()
-       bytes = stream.getvalue()
+        z = zipfile.ZipFile(stream, "w")
+        for p in commit.paste_set.all():
+            _write_to_zip(z, p.filename, commit.created.timetuple()[:6], p.paste)
+        z.close()
+        byte_data = stream.getvalue()
 
-    return send_zipfile(bytes, filename)
+    return send_zipfile(byte_data, filename)
 
-def _writeToZip(zip, name, date, content):
+
+def _write_to_zip(archive, name, date, content):
     info = zipfile.ZipInfo(name)
     info.date_time = date
     info.compress_type = zipfile.ZIP_DEFLATED
-    zip.writestr(info, content)
+    archive.writestr(info, content)
+
 
 def register(request):
     """Handles the logic for registering a user into the system."""
     if request.method != 'POST':
         form = UserCreationForm()
         return render_to_response('register.html',
-                {'form': form}, RequestContext(request))
+                                  {'form': form}, RequestContext(request))
 
     form = UserCreationForm(data=request.POST)
 
     if not form.is_valid():
         return render_to_response('register.html',
-                {'form': form}, RequestContext(request))
+                                  {'form': form}, RequestContext(request))
 
     auth.logout(request)
 
@@ -628,12 +643,12 @@ def register(request):
     user.is_active = True
     user.save()
 
-    authed_user = auth.authenticate(
-            username=user.username,
-            password=form.cleaned_data['password1']
+    authorized_user = auth.authenticate(
+        username=user.username,
+        password=form.cleaned_data['password1']
     )
 
-    auth.login(request, authed_user)
+    auth.login(request, authorized_user)
     return redirect('paste')
 
 
@@ -642,12 +657,12 @@ def login(request):
     if request.method != 'POST':
         form = AuthenticationForm()
         return render_to_response('login.html',
-                {'form': form}, RequestContext(request))
+                                  {'form': form}, RequestContext(request))
 
     form = AuthenticationForm(data=request.POST)
     if not form.is_valid():
         return render_to_response('login.html',
-                {'form': form}, RequestContext(request))
+                                  {'form': form}, RequestContext(request))
 
     auth.login(request, form.get_user())
     return redirect(request.POST.get('next', 'paste'))
@@ -660,9 +675,8 @@ def logout(request):
 
 @login_required
 def favorites(request):
-    favorites = Favorite.objects.filter(user=request.user)
-    return render_to_response('favorites.html',
-            {'favorites': favorites}, RequestContext(request))
+    favs = Favorite.objects.filter(user=request.user)
+    return render_to_response('favorites.html', {'favorites': favs}, RequestContext(request))
 
 
 def user_pastes(request, owner=None):
@@ -670,13 +684,14 @@ def user_pastes(request, owner=None):
     if not settings.ALLOW_ANONYMOUS_ACCESS and not user.is_authenticated():
         return redirect('login')
 
-    if owner != None and owner == 'all':
+    if owner is not None and owner == 'all':
         set_list = Set.objects.all()
     else:
         set_list = Set.objects.filter(owner=owner)
 
     user = None
-    if owner != None and owner.isnumeric():
+    if owner is not None and owner.isnumeric():
+        #noinspection PyBroadException
         try:
             user = User.objects.get(pk=owner)
         except:
@@ -712,47 +727,47 @@ def users(request):
     if not settings.ALLOW_ANONYMOUS_ACCESS and not user.is_authenticated():
         return redirect('login')
 
-    users = User.objects.all()
+    all_users = User.objects.all()
     anons = Set.objects.filter(owner__isnull=True).exclude(private=True)
 
     # This is an inefficient way to get the public sets for each user, should
     # be changed at some point to scale better with large # of users
-    for user in users:
-        if request.user.id == None or user.pk != request.user.pk:
+    for user in all_users:
+        if request.user.id is None or user.pk != request.user.pk:
             user.public_sets = user.set_set.exclude(private=True)
         else:
             user.public_sets = user.set_set
 
     page = int(request.GET.get('page', 1))
     per_page = int(request.GET.get('count', 20))
-    paginator = Paginator(users, per_page)
+    paginator = Paginator(all_users, per_page)
 
-    count = users.count()
+    count = all_users.count()
 
     try:
-        users = paginator.page(page)
+        all_users = paginator.page(page)
     except PageNotAnInteger:
-        users = paginator.page(1)
+        all_users = paginator.page(1)
     except EmptyPage:
-        users = paginator.page(paginator.num_pages)
+        all_users = paginator.page(paginator.num_pages)
 
     return render_to_response('users.html',
-            {'users': users, 'count': count, 'anons': anons}, RequestContext(request))
+                              {'users': all_users, 'count': count, 'anons': anons}, RequestContext(request))
 
 
 @login_required
 def preference(request):
     saved = False
     instance = Preference.objects.get(user=request.user)
-    preference = PreferenceForm(instance=instance)
+    prefs = PreferenceForm(instance=instance)
     if request.method == 'POST':
-        preference = PreferenceForm(data=request.POST, instance=instance)
-        if preference.is_valid():
-            p = preference.save(commit=False)
+        prefs = PreferenceForm(data=request.POST, instance=instance)
+        if prefs.is_valid():
+            p = prefs.save(commit=False)
             p.save()
             saved = True
     return render_to_response('preference.html',
-            { 'form': preference, 'saved': saved }, RequestContext(request))
+                              {'form': prefs, 'saved': saved}, RequestContext(request))
 
 
 def set_timezone(request):
@@ -768,24 +783,24 @@ def paste_embed(request, pk, private_key=None):
     jsonp = request.GET.get('jsonp')
     args = request.GET.getlist('arg')
     filtering = {'pk': pk}
-    paste = get_object_or_404(Paste, **filtering)
-    if (paste.revision.parent_set.private and
-            paste.revision.parent_set.private_key != private_key):
+    p = get_object_or_404(Paste, **filtering)
+    if p.revision.parent_set.private and p.revision.parent_set.private_key != private_key:
         raise Http404
     if jsonp:
-        data = render_to_string('embed.html', {'paste': paste, 'theme': theme},
-                                RequestContext(request))
-        call = '%s(%s);' % (jsonp, json.dumps({'embed': data, 'args': args}));
-        return HttpResponse(call, mimetype='text/html');
+        data = render_to_string('embed.html', {'paste': p, 'theme': theme}, RequestContext(request))
+        call = '%s(%s);' % (jsonp, json.dumps({'embed': data, 'args': args}))
+        return HttpResponse(call, mimetype='text/html')
     return render_to_response('embed.html',
-            {'paste': paste, 'theme': theme, 'jsonp': jsonp, 'args': args}, 
-            RequestContext(request), mimetype='text/html');
+                              {'paste': p, 'theme': theme, 'jsonp': jsonp, 'args': args},
+                              RequestContext(request),
+                              mimetype='text/html')
+
 
 def live_paste(request):
     commit_kwargs = {}
     if request.user.is_authenticated():
         commit_kwargs = {
-                'anonymous': request.user.preference.default_anonymous
+            'anonymous': request.user.preference.default_anonymous
         }
     if request.method != 'POST':
         return render_to_response('live.html', {
@@ -827,31 +842,31 @@ def live_paste(request):
         owner = request.user
 
     description = set_form.cleaned_data.get('description')
-    private = set_meta_form.cleaned_data.get('private')
+    keep_private = set_meta_form.cleaned_data.get('private')
     allow_edits = set_meta_form.cleaned_data.get('anyone_can_edit')
 
     # Calculate expiration time of set if necessary
     exp_option = set_meta_form.cleaned_data.get('expires')
     exp_map = {
-        'day'   : timedelta(days=1),
-        'hour'  : timedelta(hours=1),
-        'month' : timedelta(365/12),
+        'day': timedelta(days=1),
+        'hour': timedelta(hours=1),
+        'month': timedelta(365 / 12),
     }
     exp_time = datetime.utcnow() + exp_map[exp_option] if exp_option in exp_map else None
 
     # Generate a random hash for private access (20-30 characters from letters & numbers)
-    private_key = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(random.randrange(20,30)))
+    private_key = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(random.randrange(20, 30)))
 
     # Create a new paste set so we can reference our paste.
     paste_set = Set.objects.create(
-            views=0,
-            repo=repo_dir,
-            owner=owner,
-            description=description,
-            private=private,
-            anyone_can_edit=allow_edits,
-            private_key=private_key,
-            expires=exp_time,
+        views=0,
+        repo=repo_dir,
+        owner=owner,
+        description=description,
+        private=keep_private,
+        anyone_can_edit=allow_edits,
+        private_key=private_key,
+        expires=exp_time,
     )
 
     # Yes, this is horrible. I know. But there is a bug with Python Git.
@@ -862,10 +877,10 @@ def live_paste(request):
 
     # Initialize a commit, git repository, and pull the current index.
     commit = Commit.objects.create(
-            views=0,
-            parent_set=paste_set,
-            commit='',
-            owner=owner
+        views=0,
+        parent_set=paste_set,
+        commit='',
+        owner=owner
     )
 
     git_repo = Repo.init(str(repo_dir))
@@ -878,7 +893,7 @@ def live_paste(request):
         data = form.cleaned_data
         filename = data['filename']
         language_lex, language = data['language'].split(';')
-        paste = data['paste']
+        paste_set = data['paste']
 
         # If we don't specify a filename, then obviously it is lonely
         if not len(filename):
@@ -910,43 +925,43 @@ def live_paste(request):
             i += 1
 
         cleaned = []
-        paste = paste.encode('UTF-8')
-        for line in paste.split('\n'):
+        paste_set = paste_set.encode('UTF-8')
+        for line in paste_set.split('\n'):
             line = line.rstrip()
             cleaned.append(line)
-        paste = '\n'.join(cleaned)
+        paste_set = '\n'.join(cleaned)
 
         # Open the file, write the paste, call it good.
         f = open(filename_absolute, "w")
-        f.write(paste)
+        f.write(paste_set)
         f.close()
         priority_file.write('%s: %s\n' % (filename, data['priority']))
-        paste = smart_unicode(paste)
+        paste_set = smart_unicode(paste_set)
 
         # This is a bit nasty and a get_by_ext something exist in pygments.
         # However, globals() is just much more fun.
         lex = globals()[language_lex]
         paste_formatted = highlight(
-                paste,
-                lex(),
-                HtmlFormatter(
-                    style='friendly',
-                    linenos='table',
-                    lineanchors='line-%s' % form_index,
-                    anchorlinenos=True)
+            paste_set,
+            lex(),
+            HtmlFormatter(
+                style='friendly',
+                linenos='table',
+                lineanchors='line-%s' % form_index,
+                anchorlinenos=True)
         )
 
         # Add the file to the index and create the paste
         # git_repo.stage([str(filename_absolute)])
         git_repo.stage([str(filename)])
         p = Paste.objects.create(
-                filename=filename,
-                absolute_path=filename_absolute,
-                paste=paste,
-                priority=data['priority'],
-                paste_formatted=paste_formatted,
-                language=data['language'],
-                revision=commit
+            filename=filename,
+            absolute_path=filename_absolute,
+            paste=paste_set,
+            priority=data['priority'],
+            paste_formatted=paste_formatted,
+            language=data['language'],
+            revision=commit
         )
 
     # Add a priority file
@@ -955,7 +970,7 @@ def live_paste(request):
     git_repo.stage([str('priority.txt')])
 
     # Create the commit from the index
-    new_commit = git_repo.do_commit('Initial paste.', committer = get_commiter(owner))
+    new_commit = git_repo.do_commit('Initial paste.', committer=get_commiter(owner))
     commit.commit = new_commit
     commit.save()
 
@@ -964,4 +979,4 @@ def live_paste(request):
     else:
         return redirect('paste_view', pk=paste_set.pk, private_key=paste_set.private_key)
 
-    return render_to_response('live.html')
+    # return render_to_response('live.html')

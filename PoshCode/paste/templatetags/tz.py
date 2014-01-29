@@ -1,6 +1,7 @@
 from __future__ import with_statement
 
 from datetime import datetime, tzinfo
+from paste.deploy.compat import basestring
 
 try:
     import pytz
@@ -17,8 +18,9 @@ register = Library()
 
 # HACK: datetime is an old-style class, create a new-style equivalent
 # so we can define additional attributes.
-class datetimeobject(datetime, object):
+class DateTimeObject(datetime, object):
     pass
+
 
 @register.filter
 def timetag(value):
@@ -59,12 +61,13 @@ def do_timezone(value, arg):
         return ''
 
     # Obtain a timezone-aware datetime
+    #noinspection PyBroadException
+    # Filters must never raise exceptions, and pytz' exceptions inherit
+    # Exception directly, not a specific subclass. So catch everything.
     try:
         if timezone.is_naive(value):
             default_timezone = timezone.get_default_timezone()
             value = timezone.make_aware(value, default_timezone)
-    # Filters must never raise exceptions, and pytz' exceptions inherit
-    # Exception directly, not a specific subclass. So catch everything.
     except Exception:
         return ''
 
@@ -87,7 +90,7 @@ def do_timezone(value, arg):
 
     # HACK: the convert_to_local_time flag will prevent
     #       automatic conversion of the value to local time.
-    result = datetimeobject(result.year, result.month, result.day,
+    result = DateTimeObject(result.year, result.month, result.day,
                             result.hour, result.minute, result.second,
                             result.microsecond, result.tzinfo)
     result.convert_to_local_time = False
@@ -118,7 +121,7 @@ class TimezoneNode(Node):
         self.tz = tz
 
     def render(self, context):
-        with timezone.override(self.tz.resolve(context)):
+        with timezone.Override(self.tz.resolve(context)):
             output = self.nodelist.render(context)
         return output
 
@@ -185,6 +188,7 @@ def timezone_tag(parser, token):
     return TimezoneNode(nodelist, tz)
 
 
+#noinspection PyUnusedLocal
 @register.tag("get_current_timezone")
 def get_current_timezone_tag(parser, token):
     """
