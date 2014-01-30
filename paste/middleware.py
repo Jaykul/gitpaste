@@ -3,7 +3,7 @@
 This module uses pytz when it's available and falls back when it isn't.
 """
 
-from PoshCode.paste.timezone import activate
+from paste.timezone import activate
 
 from BeautifulSoup import BeautifulSoup
 

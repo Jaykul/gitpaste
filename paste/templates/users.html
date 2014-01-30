@@ -27,7 +27,7 @@
     <div>
       <div class='user'>
         <a href='{% url "anon_pastes" %}'>
-          {% if USE_ICONS %}
+          {% if USE_SOCIAL_AVATARS %}
             <img class='gravatar-community' title='Profile' src='{{ STATIC_URL }}img/default-icon.png'>
           {% endif %}
           Anonymous</a>
@@ -36,7 +36,7 @@
       </div>
       {% for user in users.object_list %}
       <div class='user'><a href='{% url "user_pastes" owner=user.pk %}'>
-          {% if USE_ICONS %}
+          {% if USE_SOCIAL_AVATARS %}
             <img class='gravatar-community' title='Profile' src='{{ user.preference.gravatar }}'>
           {% endif %}
           {{ user.preference.email }}</a>

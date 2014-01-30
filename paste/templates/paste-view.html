@@ -87,7 +87,7 @@ PoshCode.org - anonymous paste
         </span>
       {% endif %}
     <span class='header'>
-      {% if USE_ICONS %}
+      {% if USE_SOCIAL_AVATARS %}
         {% if commit_current.owner %}
         <a href='{% url "user_pastes" owner=commit_current.owner.pk %}'>
           <img title='User pastes' class='gravatar-community' alt='User' src='{{ commit_current.owner.preference.gravatar }}'></a>
@@ -181,7 +181,7 @@ PoshCode.org - anonymous paste
       <h1>{{ commit_current.comment_set.all.count }} Comment{{ commit_current.comment_set.all.count|pluralize }}</h1>
       {% for comment in commit_current.comment_set.all %}
         <div name='comment-{{ comment.pk }}' class='comment-index'>
-        {% if USE_ICONS %}
+        {% if USE_SOCIAL_AVATARS %}
             <h1 class='author {% if comment.owner == commit_current.owner %}committer{% endif %}' style='background: url({{ comment.owner.preference.gravatar }}) no-repeat left center #DDD'>
           {% else %}
             <h1 class='author {% if comment.owner == commit_current.owner %}committer{% endif %}'> 

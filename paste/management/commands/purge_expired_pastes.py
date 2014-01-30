@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from PoshCode.paste.models import Set
+from paste.models import Set
 from datetime import datetime
 
 

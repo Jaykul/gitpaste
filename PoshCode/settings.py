@@ -1,24 +1,11 @@
-import os
+from os import path
 
 DEBUG = True
+TEMPLATE_DEBUG = DEBUG
 
-ALLOW_ANONYMOUS_POSTS = True
-ALLOW_ANONYMOUS_ACCESS = True
+GITPASTE_REPOSITORIES = path.join(path.dirname(__file__), 'repositories')
 
-REPO_DIR = os.sep.join([os.path.dirname(os.path.abspath(__file__)), 'repositories'])
-
-import os
-
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.sep.join([os.path.dirname(__file__), 'whoosh', 'search-index']),
-    },
-}
-
-
-USE_ICONS = False
+USE_SOCIAL_AVATARS = False
 
 def generate_icon(email):
     """Generates the icon when a user is created. It should
@@ -32,62 +19,19 @@ def generate_icon(email):
             urllib.urlencode({'d':default, 's':str(size)}))
     return gravatar
 
+##### Localization
 USE_TZ = True
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
-
-AUTH_PROFILE_MODULE = "paste.Profile"
-
-AUTHENTICATION_BACKENDS = (
-    'social_auth.backends.browserid.BrowserIDBackend',
-    'social_auth.backends.OpenIDBackend',
-    'social_auth.backends.twitter.TwitterBackend',
-    'social_auth.backends.facebook.FacebookBackend',
-    #'social_auth.backends.google.GoogleOAuthBackend',
-    'social_auth.backends.google.GoogleOAuth2Backend',
-    #'social_auth.backends.google.GoogleBackend',
-    #'social_auth.backends.yahoo.YahooBackend',
-    'social_auth.backends.contrib.github.GithubBackend',
-    'social_auth.backends.contrib.live.LiveBackend',
-    'social_auth.backends.contrib.yahoo.YahooOAuthBackend',
-    'django.contrib.auth.backends.ModelBackend',
-)
-GITHUB_EXTRA_DATA = [
-    ('avatar_url', 'avatar'),
-    ('login', 'login'),
-]
-
-ADMINS = (
-        ('Joel Bennett', 'Jaykul@HuddledMasses.org'),
-)
-
-MANAGERS = ADMINS
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(os.path.abspath(os.path.dirname(__file__)),'db.sqlite3'),
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
-}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
-# On Unix systems, a value of None will cause Django to use the same
-# timezone as the operating system.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
+# On Unix systems, a value of None will cause Django to use the same timezone as the operating system.
+# If running in a Windows environment this must be set to the same as your system time zone.
 TIME_ZONE = 'UTC'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
-
-SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -96,6 +40,52 @@ USE_I18N = True
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale
 USE_L10N = True
+
+
+##### Authentication and Authorization
+ALLOW_ANONYMOUS_POSTS = True
+ALLOW_ANONYMOUS_ACCESS = True
+
+AUTH_PROFILE_MODULE = "paste.Profile"
+
+AUTHENTICATION_BACKENDS = (
+    'social.backends.persona.PersonaAuth',
+    'social.backends.open_id.OpenIdAuth',
+    'social.backends.twitter.TwitterOAuth',
+    'social.backends.facebook.FacebookOAuth2',
+   #'social.backends.google.GoogleOAuthBackend',
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.google.GooglePlusAuth',
+   #'social.backends.yahoo.YahooBackend',
+    'social.backends.github.GithubOAuth2',
+    'social.backends.live.LiveOAuth2',
+    'social.backends.yahoo.YahooOAuth',
+    'django.contrib.auth.backends.ModelBackend',
+)
+#GITHUB_EXTRA_DATA = [
+#    ('avatar_url', 'avatar'),
+#    ('login', 'login'),
+#]
+
+ADMINS = (
+   ('Joel Bennett', 'Jaykul@HuddledMasses.org'),
+)
+
+MANAGERS = ADMINS
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'gitpaste.db',                  # Or path to database file if using sqlite3.
+        # The following settings are not used with sqlite3:
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': '',                      # Set to empty string for default.
+    }
+}
+
+SITE_ID = 1
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -110,7 +100,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static')
+STATIC_ROOT = path.join(path.dirname(__file__), 'static')
 
 # URL prefix for static files.
 # Make sure to use a trailing slash.
@@ -127,7 +117,6 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "D:/home/site/wwwroot/PoshCode/paste/static",
 )
 
 # List of finder classes that know how to find static files in
@@ -145,20 +134,36 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.contrib.messages.context_processors.messages',
+    'social.apps.django_app.context_processors.backends',
+    'social.apps.django_app.context_processors.login_redirect',
+    'PoshCode.context_processors.use_tz',
+    'PoshCode.context_processors.use_icon',
+    'PoshCode.context_processors.site',
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'PoshCode.paste.middleware.TimezoneMiddleware',
+    'paste.middleware.TimezoneMiddleware',
+    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'PoshCode.urls'
-ROOTDIR = os.path.abspath(os.path.dirname(__file__))
+ROOTDIR = path.abspath(path.dirname(__file__))
 
 TEMPLATE_DIRS = (
-    os.sep.join([ROOTDIR, 'templates']),
+    path.join([ROOTDIR, 'templates']),
 )
 
 INSTALLED_APPS = (
@@ -170,11 +175,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.markup',
-    'PoshCode.paste',
     'django.contrib.admin',
-    'django.contrib.admindocs',
+    # 'django.contrib.admindocs',
+    'paste',
     'haystack',
-    'social_auth',
+    'social.apps.django_app.default',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -206,28 +211,19 @@ LOGGING = {
    }
 }
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.contrib.messages.context_processors.messages',
-    'PoshCode.context_processors.use_tz',
-    'PoshCode.context_processors.use_icon',
-    'PoshCode.context_processors.site',
-)
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': path.sep.join([path.dirname(__file__), 'whoosh', 'search-index']),
+    },
+}
 
 ###############################################################################
 # SECRETS:
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = None
+SECRET_KEY = 'Ge!Y$c=\{&=^]>xtAz{W(4.08iT2,8~K9[D\9aiy)]}@7::||i'
 # Get your own 
-GITHUB_APP_ID = None
-GITHUB_API_SECRET = None
 
 if SECRET_KEY is None:
    raise Exception("Please update settings.py and set your SECRET_KEY")
-if GITHUB_API_SECRET is None or GITHUB_API_ID is None:
-   raise Exception("Please update settings.py and set your GITHUB_API_ID and GITHUB_API_SECRET")

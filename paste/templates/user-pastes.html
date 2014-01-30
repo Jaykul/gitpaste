@@ -6,7 +6,7 @@
 
 {% block jsheader %}
 <link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}css/favorites.css'>
-{% if USE_ICONS %}
+{% if USE_SOCIAL_AVATARS %}
 <link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}css/favorites-icons.css'>
 {% endif %}
 {% endblock %}
@@ -14,7 +14,7 @@
 {% block content %}
 <div id='favorites'>
   <h1>
-    {% if USE_ICONS %}
+    {% if USE_SOCIAL_AVATARS %}
         {% if not owner %}
           <a href='{% url "anon_pastes" %}'><img class='gravatar-community' alt='Anonymous' src='{{ STATIC_URL }}img/default-icon.png'></a>
         {% else %}

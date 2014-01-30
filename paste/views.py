@@ -10,9 +10,9 @@ import zipfile
 from datetime import datetime
 from datetime import timedelta
 
-from util import has_access_to_paste, user_owns_paste, slugify_string
-from decorators import private
 import timezone
+from decorators import private
+from helpers import has_access_to_paste, user_owns_paste, slugify_string
 
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
@@ -68,18 +68,18 @@ def _git_diff(repo, commit):
         parent_tree = repo[parent[0]].tree
         this_tree = repo[commit].tree
 
-        diff_io = StringIO()
+        with closing(StringIO()) as diff_io:
 
-        changes = repo.object_store.tree_changes(parent_tree, this_tree)
+           changes = repo.object_store.tree_changes(parent_tree, this_tree)
 
-        for (old_path, new_path), (old_mode, new_mode), (old_sha, new_sha) in changes:
-            if new_path is None or os.path.basename(new_path) != 'priority.txt':
-                write_object_diff(diff_io, repo.object_store,
-                                  (old_path, old_mode, old_sha),
-                                  (new_path, new_mode, new_sha))
+           for (old_path, new_path), (old_mode, new_mode), (old_sha, new_sha) in changes:
+               if new_path is None or os.path.basename(new_path) != 'priority.txt':
+                   write_object_diff(diff_io, repo.object_store,
+                                     (old_path, old_mode, old_sha),
+                                     (new_path, new_mode, new_sha))
 
-        diff_io.reset()
-        diff = "".join(diff_io.readlines())
+           diff_io.reset()
+           diff = "".join(diff_io.readlines())
 
         if not len(diff):
             return None
@@ -99,7 +99,7 @@ def _git_diff(repo, commit):
 
 
 def dirname_from_description(description):
-    return "%s" % os.sep.join((settings.REPO_DIR, slugify_string(description)))
+    return "%s" % os.sep.join((settings.GITPASTE_REPOSITORIES, slugify_string(description)))
 
 
 def get_owner(request, commit_data, user):
@@ -209,7 +209,7 @@ def paste(request):
         for form_index, form in enumerate(paste_forms):
             priority_file.write('%s: %s\n' % process_pasted_file(form_index, form, repo_dir, git_repo, commit))
 
-    # os.path.relpath(priority_filename,settings.REPO_DIR)
+    # os.path.relpath(priority_filename,settings.GITPASTE_REPOSITORIES)
     # git_repo.stage([priority_filename])
     git_repo.stage(['priority.txt'])
 
@@ -655,9 +655,14 @@ def register(request):
 def login(request):
     """Handles the logic for logging a user into the system."""
     if request.method != 'POST':
+        from django.conf import settings
+        from social.backends.google import GooglePlusAuth
         form = AuthenticationForm()
-        return render_to_response('login.html',
-                                  {'form': form}, RequestContext(request))
+
+        return render_to_response('login.html', 
+                                  {'plus_id': settings.SOCIAL_AUTH_GOOGLE_PLUS_KEY, 
+                                   'plus_scope':' '.join(GooglePlusAuth.DEFAULT_SCOPE),
+                                   'form': form}, RequestContext(request))
 
     form = AuthenticationForm(data=request.POST)
     if not form.is_valid():
@@ -829,7 +834,7 @@ def live_paste(request):
     # Repositories are just a random sequence of letters and digits
     # We store the reference repository for editing the pastes.
     repo_dir = os.sep.join([
-        settings.REPO_DIR,
+        settings.GITPASTE_REPOSITORIES,
         "".join(random.sample(string.letters + string.digits, 15))
     ])
 

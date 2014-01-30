@@ -6,7 +6,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns(
-    'PoshCode.paste.views',
+    'paste.views',
     url(r'^live/$', 'live_paste', name='live_paste'),
     url(r'^(?P<pk>\d+)/$', RedirectView.as_view(url='/paste/%(pk)s/')),
     url(r'^(?P<pk>\d+)/(?P<private_key>[a-zA-Z0-9]+)?/?$', RedirectView.as_view(url='/paste/%(pk)s/%(private_key)s/')),
@@ -31,7 +31,5 @@ urlpatterns = patterns(
     url(r'^accounts/preference/$', 'preference', name='preference'),
     url(r'^accounts/profile/$', 'preference', name='preference'),
     url(r'^accounts/timezone/$', 'set_timezone', name='set_timezone'),
-    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'paste', name='paste'),
 )

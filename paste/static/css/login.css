@@ -1,26 +1,32 @@
 div.entry input {
   width: 200px !important;
-  margin-right: 15px;
-  float: left;
+  margin: 2px 180px 2px 0px;
+  float: right;
+}
+
+div.entry input[type="submit"] {
+    width: 100px !important;
 }
 
 div.entry label {
   float: left;
   width: 90px;
   border-top: 0;
-  margin-top: 5px;
+  margin: 2px 0px;
+  padding: 3px;
 }
 
 div.entry {
   padding: 10px;
 }
 
-div.entry > div > div {
-  margin-bottom: 5px;
+div.entry div.form-row {
+  margin: 5px 0px;
+  padding: 3px 0px;
 }
 
 #login {
-  width: 400px;
+  width: 510px;
   margin: 0 auto;
   margin-top: 20px;
 }
@@ -52,7 +58,7 @@ div.buttons {
 }
 
 div.buttons form {
-   display: inline-block;
+   display: inline;
 }
 
 button,.button {
