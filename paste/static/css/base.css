@@ -17,9 +17,17 @@ nav.top-bar {
     height: 45px;
 }
 
+nav.top-bar h1 {
+   margin: 0px;
+}
+
+nav.top-bar>a:hover {
+   text-decoration: none !important;
+}
+
 nav.top-bar img {
     float: left;
-    width: 180px; /* height 25px */
+    /* width: 180px; height 25px */
     padding: 0 5px 5px;
     left: 15px;
 }
