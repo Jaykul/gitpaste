@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
   <head>
     <title>{% block title %}{% endblock %}</title>
-    <link rel='stylesheet' media='screen' type='text/css' href='{{ STATIC_URL }}css/base.css'>
-    <link rel='stylesheet' media='print' type='text/css' href='{{ STATIC_URL }}css/base-print.css'>
+    <meta charset="UTF-8"/>
+    <link rel='stylesheet' media='screen' type='text/css' href='{{ STATIC_URL }}css/base.css' />
+    <link rel='stylesheet' media='print' type='text/css' href='{{ STATIC_URL }}css/base-print.css' />
     <script src='{{ STATIC_URL }}js/jquery-1.7.1.min.js'></script>
     {% block jsheader %}{% endblock %}
   </head>
