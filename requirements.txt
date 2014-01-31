@@ -8,7 +8,7 @@ argparse>=1.1
 async==0.6.1
 django-haystack==2.1.0
 gitdb==0.5.4
-pytz==2011n
+pytz>=2011n
 repoze.timeago==0.5
 smmap>=0.8.2
 wsgiref==0.1.2

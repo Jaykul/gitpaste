@@ -8,30 +8,11 @@ from pygments import lexers
 
 # Add preferred lexers here. This list will not be explicitly sorted.
 preferred_lexers = [
-    'TextLexer',
-    'ActionScriptLexer',
-    'CLexer',
+    'PowerShell',
     'CSharpLexer',
-    'CppLexer',
-    'CommonLispLexer',
-    'CssLexer',
-    'DiffLexer',
-    'ErlangLexer',
-    'HaskellLexer',
-    'HtmlLexer',
-    'JavaLexer',
-    'JavascriptLexer',
-    'LuaLexer',
-    'ObjectiveCLexer',
-    'PerlLexer',
-    'PhpLexer',
-    'PythonLexer',
-    'RubyLexer',
-    'ScalaLexer',
-    'SchemeLexer',
-    'SqlLexer',
-    'TexLexer',
     'XmlLexer',
+    'SqlLexer',
+    'HtmlLexer',
 ]
 
 

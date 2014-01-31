@@ -74,21 +74,22 @@
 
    <!-- Define a form to send the POST data -->
    <div class="buttons">
-      <a class="button" rel="nofollow" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Facebook</a>&nbsp;
-      <a class="button" rel="nofollow" href="{% url 'social:begin' 'twitter' %}?next={{ request.path }}">Twitter</a>&nbsp;
+      <a class="button" rel="nofollow" href="{% url 'social:begin' 'github' %}?next={{ request.path }}">GitHub</a>
+      <a class="button" rel="nofollow" href="{% url 'social:begin' 'live' %}?next={{ request.path }}">Live</a>
+      <a class="button" rel="nofollow" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Facebook</a>
+      <a class="button" rel="nofollow" href="{% url 'social:begin' 'twitter' %}?next={{ request.path }}">Twitter</a>
+      <a class="button" rel="nofollow" id="plusid" href="#">Google+</a>
+      <a class="button" rel="nofollow" id="browserid" href="#">Persona</a>
       <form id="google-plus" method="post" action="{% url 'social:complete' 'google-plus' %}">{% csrf_token %}
          <input id="at" type="hidden" name="access_token" value="" />
          <input id="code" type="hidden" name="code" value="" />
-         <a class="button" rel="nofollow" id="plusid" href="#">Google+</a>&nbsp;
       </form>
-      <a class="button" rel="nofollow" href="{% url 'social:begin' 'github' %}?next={{ request.path }}">GitHub</a>&nbsp;
       <form method="post" action="{% url 'social:complete' 'persona' %}">{% csrf_token %}
          <input type="hidden" name="assertion" value="" />
-         <a class="button" rel="nofollow" id="browserid" href="#">Persona</a>&nbsp;
       </form>
 
       <div class="clear"></div>
-   </div>   
+   </div>
 
    <form method='POST' id='paste-form'>
       <div class='entry'>

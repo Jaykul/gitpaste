@@ -1,6 +1,6 @@
 div.entry input {
   width: 200px !important;
-  margin: 2px 180px 2px 0px;
+  margin: 2px 150px 2px 0px;
   float: right;
 }
 
@@ -26,7 +26,7 @@ div.entry div.form-row {
 }
 
 #login {
-  width: 510px;
+  width: 500px;
   margin: 0 auto;
   margin-top: 20px;
 }
@@ -50,19 +50,21 @@ ul.errorlist {
 
 div.login #browserid {
     background: 10px no-repeat url('../img/icons/key.png') #D2E9FF !important;
-    
+
  }
- 
+
 div.buttons {
    padding: 0px;
+   display: flex;
 }
 
-div.buttons form {
-   display: inline;
+div.login div.buttons form {
+   display: none;
 }
 
 button,.button {
-    float:right;font-size:14px;font-weight:bold;line-height:14px;
+    float: left;
+    font-size:14px;font-weight:bold;line-height:14px;
     cursor:pointer;padding:6px 10px 7px;border:0;border-radius:3px;white-space:nowrap;
     color:#fff;text-shadow:0 1px rgba(0,0,0,0.5);
     box-shadow:inset 0 -1px 0 rgba(0,0,0,0.3),0 1px 0 rgba(0,0,0,0.2);
@@ -104,7 +106,8 @@ button,.button {
     padding:0;border:0
  }
  #login button, #login .button {
-    padding:6px 25px 7px 10px;margin: 2px;
+    padding:6px 20px 7px 10px;
+    margin: 2px;
     background-color:#4eb5e5;
     background-image:-webkit-gradient(linear,left top,left bottom,from(#4eb5e5),to(#3196cf));
     background-image:-webkit-linear-gradient(top,#4eb5e5,#3196cf);
