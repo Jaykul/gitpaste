@@ -8,7 +8,7 @@ from pygments import lexers
 
 # Add preferred lexers here. This list will not be explicitly sorted.
 preferred_lexers = [
-    'PowerShell',
+    'PowerShellLexer',
     'CSharpLexer',
     'XmlLexer',
     'SqlLexer',
