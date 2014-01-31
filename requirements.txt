@@ -18,3 +18,6 @@ requests>=2.2.1
 oauthlib>=0.6.1
 six>=1.5.2
 requests-oauthlib>=0.4.0
+python-mimeparse>=0.1.4
+python-dateutil>=1.5,!=2.0
+django-tastypie>=0.11

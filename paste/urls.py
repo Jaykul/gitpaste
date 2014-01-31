@@ -5,6 +5,14 @@ from django.contrib import admin
 
 admin.autodiscover()
 
+from tastypie.api import Api
+from paste.api import *
+v1_api = Api(api_name='v1')
+v1_api.register(UserResource())
+v1_api.register(SetResource())
+v1_api.register(CommitResource())
+# v1_api.register(PasteResource())
+
 urlpatterns = patterns(
     'paste.views',
     url(r'^live/$', 'live_paste', name='live_paste'),
@@ -32,4 +40,5 @@ urlpatterns = patterns(
     url(r'^accounts/profile/$', 'preference', name='preference'),
     url(r'^accounts/timezone/$', 'set_timezone', name='set_timezone'),
     url(r'^$', 'paste', name='paste'),
+    (r'^api/', include(v1_api.urls)),
 )

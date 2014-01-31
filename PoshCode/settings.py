@@ -179,6 +179,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'paste',
     'haystack',
+    'tastypie',
     'social.apps.django_app.default',
 )
 
