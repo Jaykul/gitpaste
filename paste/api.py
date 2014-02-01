@@ -26,6 +26,7 @@ class UserResource(JsonModelResource):
         collection_name = 'users'
         excludes = ['email', 'password', 'is_active', 'is_staff', 'is_superuser']
         allowed_methods = ['get']
+        include_absolute_url = True
 
 class SetResource(JsonModelResource):
     owner = fields.ForeignKey(UserResource, 'owner', null=True, blank=True, default=None, full=True)
@@ -36,16 +37,17 @@ class SetResource(JsonModelResource):
         collection_name = 'pastes'
         excludes = ['private_key','repo']
         allowed_methods = ['get']
-        # include_absolute_url = True
+        include_absolute_url = True
 
     def dehydrate(self, bundle):
         pr = PasteResource()
         files = []
-        for paste in bundle.obj.commit_set.latest('created').paste_set.all():
+        
+        for paste in bundle.obj.commit_set.latest().paste_set.all():
             pr_bundle = pr.build_bundle(obj=paste,request=bundle.request)
             pr_json = pr.full_dehydrate(pr_bundle, for_list=True)
             files.append(pr_json)
-
+        
         #pr.serialize(None, bundles, self.determine_format(bundle.request))
         bundle.data['files'] = files
         return bundle

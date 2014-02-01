@@ -430,6 +430,7 @@ def paste_edit(request, pk, paste_set, private_key=None):
         paste_set.private = fdata.get('private')
         paste_set.anyone_can_edit = fdata.get('anyone_can_edit')
 
+    paste_set.updated = datetime.utcnow()
     paste_set.save()
 
     commit = Commit.objects.create(
@@ -655,14 +656,14 @@ def register(request):
 def login(request):
     """Handles the logic for logging a user into the system."""
     if request.method != 'POST':
-        from django.conf import settings
         from social.backends.google import GooglePlusAuth
         form = AuthenticationForm()
+        kwargs = {'form': form}
+        if hasattr(settings, 'SOCIAL_AUTH_GOOGLE_PLUS_KEY'):
+            kwargs['plus_id'] = settings.SOCIAL_AUTH_GOOGLE_PLUS_KEY
+            kwargs['plus_scope'] = ' '.join(GooglePlusAuth.DEFAULT_SCOPE)
 
-        return render_to_response('login.html', 
-                                  {'plus_id': settings.SOCIAL_AUTH_GOOGLE_PLUS_KEY, 
-                                   'plus_scope':' '.join(GooglePlusAuth.DEFAULT_SCOPE),
-                                   'form': form}, RequestContext(request))
+        return render_to_response('login.html', kwargs, RequestContext(request))
 
     form = AuthenticationForm(data=request.POST)
     if not form.is_valid():

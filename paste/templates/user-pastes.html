@@ -2,7 +2,14 @@
 {% load humanize %}
 {% load tz %}
 
-{% block title %} Login {% endblock %}
+{% block title %}
+PoshCode -
+   {% if owner %}
+      Posts by {{ owner.preference.email }}
+   {% else %}
+      Anonymous Posts
+   {% endif %}
+{% endblock %}
 
 {% block jsheader %}
 <link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}css/favorites.css' />

@@ -44,13 +44,17 @@ class Set(models.Model):
     private_key = models.CharField(max_length=30)
     expires = models.DateTimeField(null=True)
     created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
     views = models.IntegerField()
     # downloads = models.IntegerField()
 
     class Meta:
-        ordering = ['-created']
-        get_latest_by = 'created'
+        ordering = ['-updated']
+        get_latest_by = 'updated'
 
+    def get_absolute_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('paste_view', args=[str(self.id)])
 
     @property
     def active_private_key(self):
@@ -76,6 +80,10 @@ class Commit(models.Model):
     @property
     def short(self):
         return self.commit[:8]
+
+    def get_absolute_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('paste_view', args=[str(self.id)], kwargs={"commit":self.commit})
 
     class Meta:
         ordering = ['-created']
