@@ -23,6 +23,6 @@ def slugify_string(value):
     Strips leading and trailing whitespace.
     Converts remaining whitespace to underscores.
     """
-    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
+    value = unicodedata.normalize('NFKD', unicode(value)).encode('ascii', 'ignore')
     value = re.sub('[^\w\s-]', '', value).strip()
     return mark_safe(re.sub('[-\s]+', '_', value))

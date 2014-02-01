@@ -291,7 +291,7 @@ def process_pasted_file(form_index, form, repo_dir, repo, commit, edit=False):
 
     # If we don't specify a filename, then obviously it is lonely
     if not len(filename):
-        filename = 'paste'
+        filename = 'paste' + str(form_index)
 
     # Construct a more logical filename for our commit
     filename_base, ext = os.path.splitext(filename)

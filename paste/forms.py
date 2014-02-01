@@ -57,7 +57,7 @@ class SetMetaForm(forms.Form):
 
 
 class SetForm(forms.Form):
-    description = forms.CharField(max_length=256, required=False,
+    description = forms.CharField(max_length=256, required=True,
                                   widget=forms.widgets.TextInput(attrs={
                                       'placeholder': 'add a paste description...'
                                   }))
@@ -73,7 +73,7 @@ class SetForm(forms.Form):
 
 class PasteForm(forms.Form):
     priority = forms.IntegerField(initial=0)
-    filename = forms.CharField(max_length=256, required=False,
+    filename = forms.CharField(max_length=256, required=True,
                                widget=forms.widgets.TextInput(attrs={
                                    'placeholder': 'add a file name...',
                                    'class': 'filename'
@@ -87,7 +87,7 @@ class PasteForm(forms.Form):
             return ''
         return d
 
-    paste = forms.CharField(widget=forms.Textarea, required=False)
+    paste = forms.CharField(widget=forms.Textarea, required=True)
     language = forms.ChoiceField(
         choices=languages,
         required=False,
