@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-# from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 
 from models import *
 
@@ -57,23 +57,23 @@ class SetMetaForm(forms.Form):
 
 
 class SetForm(forms.Form):
-    description = forms.CharField(max_length=256, required=True,
+    description = forms.CharField(max_length=75, required=True,
                                   widget=forms.widgets.TextInput(attrs={
-                                      'placeholder': 'add a paste description...'
+                                      'placeholder': 'add a module name...'
                                   }))
 
     def clean_description(self):
         d = self.cleaned_data.get('description')
         if d is None:
             return d
-        if d == 'add a paste description...':
+        if d == 'add a module name...':
             return ''
         return d
 
 
 class PasteForm(forms.Form):
     priority = forms.IntegerField(initial=0)
-    filename = forms.CharField(max_length=256, required=True,
+    filename = forms.CharField(max_length=100, required=True,
                                widget=forms.widgets.TextInput(attrs={
                                    'placeholder': 'add a file name...',
                                    'class': 'filename'

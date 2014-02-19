@@ -16,16 +16,17 @@
 {% block content %}
 <section class='meta'>
 {% if not user.parent_set_set.all.count %}
-    <section class='yellow-box'>
-        <p>This site is in <strong>BETA</strong>. Please let me <a href="http://twitter.com/jaykul">@Jaykul</a> know if you have any problems: you can <a href="https://github.com/Jaykul/gitpaste/issues">post issues or questions on github</a>.
-        <p>
-        <strong>PoshCode</strong> is a simple way to <strong>share PowerShell scripts and modules</strong> with others. It is an <strong>open-source</strong> <a href='http://gist.github.com'>github:gist</a> clone based on gitpaste.
-            All pastes are git repositories, so they are automatically <strong>versioned</strong> and <strong>forkable</strong>.
-        </p>
-        <p>
-            <a href='https://github.com/jaykul/gitpaste'>Fork GitPaste on GitHub and improve it.</a>
-        </p>
-    </section>
+   <section class='yellow-box'>
+      <h3>NOTE: If you want to describe this paste, just add a ReadMe.md file!</h3>
+      <p>This site is in <strong>BETA</strong>. Please let me <a href="http://twitter.com/jaykul">@Jaykul</a> know if you have any problems: you can <a href="https://github.com/Jaykul/gitpaste/issues">post issues or questions on github</a>.
+      <p>
+         <strong>PoshCode</strong> is a simple way to <strong>share PowerShell scripts and modules</strong> with others. It is an <strong>open-source</strong> <a href='http://gist.github.com'>github:gist</a> clone based on gitpaste.
+         All pastes are git repositories, so they are automatically <strong>versioned</strong> and <strong>forkable</strong>.
+      </p>
+      <p>
+         <a href='https://github.com/jaykul/gitpaste'>Fork GitPaste on GitHub and improve it.</a>
+      </p>
+   </section>
 {% endif %}
     <section class='paste-list'>
     {% if user.is_authenticated %}

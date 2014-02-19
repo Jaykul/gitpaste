@@ -43,7 +43,7 @@ USE_L10N = True
 
 
 ##### Authentication and Authorization
-ALLOW_ANONYMOUS_POSTS = True
+ALLOW_ANONYMOUS_POSTS = False
 ALLOW_ANONYMOUS_ACCESS = True
 
 AUTH_PROFILE_MODULE = "paste.Profile"
