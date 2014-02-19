@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -4625,7 +4625,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
-    <Content Include="gitpaste.db" />
     <Content Include="paste\static\css\base-print.css" />
     <Content Include="paste\static\css\base.css" />
     <Content Include="paste\static\css\chosen.css" />
@@ -4694,6 +4693,7 @@
     <Content Include="paste\templates\search\search.html" />
     <Content Include="paste\templates\user-pastes.html" />
     <Content Include="paste\templates\users.html" />
+    <Content Include="poshcode.db" />
     <Content Include="PoshCode\repositories\.gitignore" />
     <Content Include="PoshCode\static\.gitignore" />
     <Content Include="PoshCode\static\.gitignore" />
