@@ -244,7 +244,6 @@ input.submit {
 
 div.anonymous label {
     display: inline;
-    width: inherit !important;
 }
 
 div.anonymous input {
@@ -297,9 +296,6 @@ div.add-row a {
 div.add-row a:hover {
     text-decoration: none;
     background-color: #e0e0e0;
-}
-
-div.add-row a:hover {
     box-shadow: 1px 1px 5px #999;
 }
 
