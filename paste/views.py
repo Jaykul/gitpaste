@@ -308,8 +308,8 @@ def process_pasted_file(form_index, form, repo_dir, repo, commit, edit=False):
 
     if os.path.exists(filename_absolute) and not edit:
         filename_absolute = get_first_nonexistent_filename(filename_abs_base + '-%d' + ext)
-        filename = os.path.basename(filename_absolute)
 
+    filename = os.path.basename(filename_absolute)
     paste_code = '\n'.join((line.rstrip() for line in smart_unicode(paste_code).splitlines()))
 
     # Open the file, write the paste, call it good.
@@ -342,7 +342,7 @@ def process_pasted_file(form_index, form, repo_dir, repo, commit, edit=False):
         revision=commit
     )
 
-    return filename, data['priority']
+    return str(filename), data['priority']
 
 
 @private(Set)
@@ -357,7 +357,7 @@ def paste_edit(request, pk, paste_set, private_key=None):
 
     previous_files = []
     for f in commit.paste_set.all():
-        previous_files.append(os.path.basename(f.absolute_path))
+        previous_files.append(str(os.path.basename(f.absolute_path)))
 
     # Populate our initial data
     initial_data = []
@@ -457,6 +457,10 @@ def paste_edit(request, pk, paste_set, private_key=None):
     # Create the commit from the index
     intersected = set(form_files).intersection(previous_files)
     removed_files = list(set(previous_files) - intersected)
+
+    print 'FILENAMES: [' + ' | '.join(form_files) + ']'
+    print 'PREVIOUS:  [' + ' | '.join(previous_files) + ']'
+    print 'REMOVED:   [' + ' | '.join(removed_files) + ']'
     for f in removed_files:
         # index.remove ...
         del index[str(f)]

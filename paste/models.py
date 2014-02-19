@@ -36,7 +36,7 @@ class DateTimeFieldTZ(models.DateTimeField):
 
 class Set(models.Model):
     owner = models.ForeignKey(User, null=True, blank=True, default=None)
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=75)
     repo = models.CharField(max_length=100)
     fork = models.ForeignKey('Commit', null=True, blank=True, default=None, on_delete=models.SET_NULL)
     private = models.BooleanField(default=False)
@@ -111,7 +111,7 @@ class Comment(models.Model):
 
 class Paste(models.Model):
     absolute_path = models.CharField(max_length=2048)
-    filename = models.CharField(max_length=255)
+    filename = models.CharField(max_length=100)
     paste = models.TextField()
     paste_formatted = models.TextField()
     language = models.CharField(max_length=100)
