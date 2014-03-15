@@ -4693,7 +4693,6 @@
     <Content Include="paste\templates\search\search.html" />
     <Content Include="paste\templates\user-pastes.html" />
     <Content Include="paste\templates\users.html" />
-    <Content Include="poshcode.db" />
     <Content Include="PoshCode\repositories\.gitignore" />
     <Content Include="PoshCode\static\.gitignore" />
     <Content Include="PoshCode\static\.gitignore" />

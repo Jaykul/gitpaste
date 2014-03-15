@@ -19,6 +19,10 @@ div.paste table {
     width: 100%;
 }
 
+div.paste table tr {
+    vertical-align: top;
+}
+
 div.entryless,
 div.entry {
     border-radius: 5px !important;
