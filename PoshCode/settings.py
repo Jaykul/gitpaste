@@ -163,7 +163,7 @@ ROOT_URLCONF = 'PoshCode.urls'
 ROOTDIR = path.abspath(path.dirname(__file__))
 
 TEMPLATE_DIRS = (
-    path.join([ROOTDIR, 'templates']),
+    path.join(ROOTDIR, 'templates'),
 )
 
 INSTALLED_APPS = (
