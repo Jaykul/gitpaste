@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-
+{% load static from staticfiles %}
 {% block title %} PoshCode - Login {% endblock %}
 
 {% block jsheader %}
-<link rel='stylesheet' media='all' type='text/css' href='{{ STATIC_URL }}css/login.css' />
+<link rel='stylesheet' media='all' type='text/css' href="{% static "css/login.css" %}" />
 <!-- Setup click handler that retrieves BrowserID assertion code and sends POST data -->
 <script type="text/javascript">
     (function () {
@@ -120,5 +120,4 @@
       </div>
    </form>
 </div>
-<script src='{{ STATIC_URL }}js/paste.js'></script>
 {% endblock %}

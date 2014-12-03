@@ -3,3 +3,4 @@ obj/
 bin/
 *.pyc
 .idea/
+PoshCode/static/
